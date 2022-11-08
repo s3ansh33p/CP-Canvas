@@ -12,6 +12,10 @@ A simple drawing test !
     Click here
 </a>
 
+Choose "Install" to recommanded extensions
+
+Choose "make public" to your app port
+
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
