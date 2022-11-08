@@ -33,3 +33,24 @@ export function doDrawPixels() {
 	// pixels[off + 3] = 255;
 	// ctx.putImageData(id, 8, 8);
 }
+
+export function clearScreen() {
+	let canvas = get(canvasStore);
+	let ctx = get(contextStore);
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	ctx.fillStyle = "#000000";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+export function handleTouch(x, y) {
+	let canvas = get(canvasStore);
+	let ctx = get(contextStore);
+
+	let r = 28;
+	let g = 142;
+	let b = 226;
+	ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+	ctx.fillRect(x, y, 2, 2);
+}

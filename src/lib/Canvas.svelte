@@ -17,7 +17,9 @@
 		time,
 	} from "../specs";
 
-	export let killLoopOnError = true;
+	import { handleTouch } from "./drawing";
+	import { touchEventToPosition } from "./helpers";
+
 	export let attributes = {};
 
 	const dispatch = createEventDispatcher();
@@ -83,6 +85,8 @@
 		dispatch("touchDown", {
 			event: ev,
 		});
+		console.log(ev);
+		handleTouch(...touchEventToPosition(ev));
 	}
 	function handleTouchUp(ev) {
 		dispatch("touchUp", {

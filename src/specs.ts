@@ -4,6 +4,7 @@ import { writable, derived, readable } from "svelte/store";
 // TODO: the classpad is responsive, change it to writable
 export const width = readable(320);
 export const height = readable(528);
+export const zoomFactor = readable(1.5);
 
 export const pixelRatio = writable(window.devicePixelRatio);
 export const context = writable<CanvasRenderingContext2D>();

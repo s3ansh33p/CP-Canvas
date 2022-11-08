@@ -3,8 +3,13 @@
 	import SubPixel from "./lib/SubPixel.svelte";
 	import Canvas from "./lib/Canvas.svelte";
 	import ClassPad from "./lib/ClassPad.svelte";
-	import { doDrawPixels } from "./lib/drawing";
+	import { clearScreen, doDrawPixels } from "./lib/drawing";
 	import TouchTest from "./lib/TouchTest.svelte";
+	import { onMount } from "svelte";
+
+	onMount(() => {
+		clearScreen();
+	});
 </script>
 
 <main>
@@ -19,14 +24,20 @@
 			</CanvasLoop> -->
 		</ClassPad>
 
-		<button on:click={() => doDrawPixels()}>DrawThings</button>
+		<div class="toolbar">
+			<button on:click={() => doDrawPixels()}>DrawThings</button>
+			<button on:click={() => clearScreen()}>ClearScreen</button>
+		</div>
 	</div>
 </main>
 
 <style>
-	button {
+	.toolbar {
 		position: fixed;
 		top: 2rem;
 		left: 6rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 </style>

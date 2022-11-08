@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { width, height, pixelRatio } from "../specs";
+	import { width, height, pixelRatio, zoomFactor } from "../specs";
 </script>
 
-<div id="classpad">
+<div id="classpad" style="--zoomFactor: {$zoomFactor}">
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -2620,7 +2620,7 @@
 	}
 
 	.cp-wrapper {
-		transform: scale(1.5);
+		transform: scale(var(--zoomFactor));
 		transform-origin: top;
 	}
 </style>
