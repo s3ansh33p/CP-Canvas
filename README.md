@@ -19,3 +19,10 @@ Choose "make public" to your app port
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+
+## TODO
+
+- Add Keys support
+- Quick access buttons
+- Fake poweroff animation
+- Fake HomeScreen UI

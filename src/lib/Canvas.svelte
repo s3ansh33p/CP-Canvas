@@ -118,8 +118,8 @@
 
 <canvas
 	bind:this={canvas}
-	width={$width * $pixelRatio}
-	height={$height * $pixelRatio}
+	width={$width}
+	height={$height}
 	style="width: {$width}px; height: {$height}px;"
 	on:mousedown={handleTouchDown}
 	on:mouseup={handleTouchUp}

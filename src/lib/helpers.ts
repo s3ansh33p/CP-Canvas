@@ -12,7 +12,5 @@ export function touchEventToPosition(ev: MouseEvent): [number, number] {
 	const x = ev.clientX - rect.left;
 	const y = ev.clientY - rect.top;
 
-	console.log(rect);
-	console.log(x, ev.clientX, rect.left);
-	return [x * 1.25, y * 1.25];
+	return [x, y];
 }

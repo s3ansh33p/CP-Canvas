@@ -27,7 +27,9 @@
 		<div class="toolbar">
 			<button on:click={() => doDrawPixels()}>DrawThings</button>
 			<button on:click={() => clearScreen()}>ClearScreen</button>
-			<button on:click={() => Debug_Printf(0, 1, true, "Hello.")}>Hello</button>
+			<button on:click={() => Debug_Printf(0, 1, true, "Hello...")}
+				>Hello</button
+			>
 		</div>
 	</div>
 </main>
