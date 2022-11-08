@@ -3,7 +3,7 @@
 	import SubPixel from "./lib/SubPixel.svelte";
 	import Canvas from "./lib/Canvas.svelte";
 	import ClassPad from "./lib/ClassPad.svelte";
-	import { clearScreen, doDrawPixels } from "./lib/drawing";
+	import { clearScreen, Debug_Printf, doDrawPixels } from "./lib/drawing";
 	import TouchTest from "./lib/TouchTest.svelte";
 	import { onMount } from "svelte";
 
@@ -27,6 +27,7 @@
 		<div class="toolbar">
 			<button on:click={() => doDrawPixels()}>DrawThings</button>
 			<button on:click={() => clearScreen()}>ClearScreen</button>
+			<button on:click={() => Debug_Printf(0, 1, true, "Hello.")}>Hello</button>
 		</div>
 	</div>
 </main>
