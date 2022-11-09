@@ -3,7 +3,7 @@
 	import SubPixel from "./lib/SubPixel.svelte";
 	import Canvas from "./lib/Canvas.svelte";
 	import ClassPad from "./lib/ClassPad.svelte";
-	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug } from "./lib/drawing";
+	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug, exampleDisplay, LCD_ClearScreen, LCD_Refresh } from "./lib/drawing";
 	import TouchTest from "./lib/TouchTest.svelte";
 	import { onMount } from "svelte";
 
@@ -31,6 +31,9 @@
 				>Hello</button
 			>
 			<button on:click={drawAllDebug}>DrawAllDebug</button>
+			<button on:click={exampleDisplay}>ExampleDisplay</button>
+			<button on:click={LCD_Refresh}>LCD_Refresh</button>
+			<button on:click={LCD_ClearScreen}>LCD_ClearScreen</button>
 		</div>
 	</div>
 </main>
