@@ -40,29 +40,19 @@ export function LCD_Refresh() {
 	const VRAM = get(classpad).vram;
 	// get canvas
 	let ctx = get(contextStore);
-	// loop through each 8 bytes in VRAM
-	// each 3 bytes are a pixel color
-	let firstPixel = 0;
-	let r = 0;
-	let g = 0;
-	let b = 0;
-	for (let _x = 0; _x < 320; _x += 1) {
-		for (let _y = 0; _y < 528; _y += 1) {
-			let x = _x;
-			let y = _y;
-			[r,g,b] = INT_RGB565TO888(VRAM[(x + y * 320)]);
-			// draw pixel
-			ctx.fillStyle = `rgb(${r},${g},${b})`;
-			ctx.fillRect(x, y, 1, 1);
-			if (firstPixel == 0) {
-				if (r != 0 || g != 0 || b != 0) {
-					firstPixel = _x + _y * 320;
-				}
-			}
-		}
+	// convert vram to imageData
+	let imageData = ctx.createImageData(320, 528);
+	let data = imageData.data;
+	for (let i = 0; i < VRAM.length; i++) {
+		let color = INT_RGB565TO888(VRAM[i]);
+		data[i * 4] = color[0];
+		data[i * 4 + 1] = color[1];
+		data[i * 4 + 2] = color[2];
+		data[i * 4 + 3] = 255;
 	}
+	// draw imageData
+	ctx.putImageData(imageData, 0, 0);
 	console.log("LCD_Refresh", VRAM);
-	console.log("VRAM First:", firstPixel, "| Data:", VRAM[firstPixel], INT_RGB565TO888(VRAM[firstPixel]));
 	// end timer
 	let timeEnd = performance.now();
 	console.log("LCD_Refresh took", timeEnd - timeStart, "ms");
