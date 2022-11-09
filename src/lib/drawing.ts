@@ -12,6 +12,8 @@ import {
  * TODO !!
  */
 
+export type RGBColor = [number, number, number]
+
 export function INT_RGB888TO565(
 	r: number,
 	g: number,
@@ -25,7 +27,7 @@ export function INT_RGB888TO565(
 
 export function INT_RGB565TO888(
 	color: number
-): number[] {
+): RGBColor {
 	return [
 		((color >> 11) & 0x1f) << 3,
 		((color >> 5) & 0x3f) << 2,
@@ -72,9 +74,14 @@ export function Debug_SetCursorPosition(
 	console.log("Debug_SetCursorPosition", x, y);
 }
 
+/**
+ * Convert an html hex color to RGB
+ * @param color "#fff" or "#ffffff" hex color 
+ * @returns RGBColor : [r, g, b]
+ */
 export function INT_HEXTORGB(
 	color: string
-) {
+): RGBColor {
 	// check if # is present
 	if (color[0] === "#") {
 		// remove #
@@ -92,12 +99,20 @@ export function INT_HEXTORGB(
 	return [r, g, b];
 }
 
+/**
+ * Draws a rectange to VRAM
+ * @param x 
+ * @param y 
+ * @param w Width
+ * @param h Height
+ * @param color RGB fill color to rectagle
+ */
 export function rectangle(
 	x: number,
 	y: number,
 	w: number,
 	h: number,
-	color: number[]
+	color: RGBColor
 ) {
 	// get vram
 	const VRAM = get(classpad).vram;
@@ -109,11 +124,18 @@ export function rectangle(
 	}	
 }
 
+/**
+ * 
+ * @param x 
+ * @param y1 
+ * @param y2 
+ * @param color 
+ */
 export function vline(
 	x: number,
 	y1: number,
 	y2: number,
-	color: number[]
+	color: RGBColor
 ) {
 	if (y1>y2) { let z=y2; y2=y1; y1=z;}
 	for (let y=y1; y<=y2; y++)
@@ -125,7 +147,7 @@ export function line(
 	y1: number,
 	x2: number,
 	y2: number,
-	color: number[]
+	color: RGBColor
 ) {
 	let dx = x2 - x1;
 	let dy = y2 - y1;
@@ -176,8 +198,8 @@ export function triangle(
 	y1: number,
 	x2: number,
 	y2: number,
-	colorFill: number[],
-	colorLine: number[]
+	colorFill: RGBColor,
+	colorLine: RGBColor
 ) {
 	let z;
 	if(x0>x2){ z=x2; x2=x0; x0=z; z=y2; y2=y0; y0=z; }
@@ -244,16 +266,22 @@ export function triangle(
 	line(x2,y2,x0,y0,colorLine);
 }
 
-export function fillScreen(color: number[]) {
+export function fillScreen(color: RGBColor) {
 	for (let i = 0; i < 320 * 528; i++) {
 		setPixel(i % 320, Math.floor(i / 320), color);
 	}
 }
 
+/**
+ * Set a pixel in VRAM
+ * @param x 
+ * @param y 
+ * @param color 
+ */
 export function setPixel(
 	x: number,
 	y: number,
-	color: number[]
+	color: RGBColor
 ) {
 	// get vram
 	const VRAM = get(classpad).vram;
@@ -272,6 +300,11 @@ export function LCD_ClearScreen() {
 	console.log("LCD_ClearScreen");
 }
 
+/**
+ * Print a string on screen
+ * @param text String to draw
+ * @param invert Invert background (black text on white bg)
+ */
 export function Debug_PrintString(
 	text: string,
 	invert: boolean
@@ -281,6 +314,7 @@ export function Debug_PrintString(
 
 	let bg = INT_HEXTORGB(invert ? "#fff" : "#000");
 	let fg = INT_HEXTORGB(invert ? "#000" : "#fff");
+
 	// Font width and height
 	let fw = 6;
 	let fh = 12;
@@ -302,9 +336,7 @@ export function Debug_PrintString(
 		_x = -1;
 		_y = 0;
 
-		// ctx.fillStyle = bg;
-		// ctx.fillRect(fw * x, fh * y, fw, fh);
-		// instead of filling the canvas, write to classpad vram
+		// write background to classpad vram
 		rectangle(fw * x, fh * y, fw, fh, bg);
 
 		if (char) {
@@ -319,8 +351,6 @@ export function Debug_PrintString(
 					_x++;
 				}
 				if (p == 1) {
-					// ctx.fillStyle = fg;
-					// ctx.fillRect(1 + fw * x + _x, 1 + fh * y + _y, 1, 1);
 					setPixel(1 + fw * x + _x, 1 + fh * y + _y, fg);
 				}
 			}
@@ -332,6 +362,13 @@ export function Debug_PrintString(
 	classpadState.debug.x = x;
 }
 
+/**
+ * Print a string on screen
+ * @param x 
+ * @param y 
+ * @param invert Invert background (black text on white bg)
+ * @param text String to draw
+ */
 export function Debug_Printf(
 	x: number,
 	y: number,
@@ -342,6 +379,9 @@ export function Debug_Printf(
 	Debug_PrintString(text, invert);
 }
 
+/**
+ * Debug function test to print all character on screen
+ */
 export function drawAllDebug() {
 	// print all characters
 	Debug_Printf(0, 1, true, charmap.slice(0, 54));
@@ -350,6 +390,9 @@ export function drawAllDebug() {
 	Debug_Printf(0, 4, false, charmap.slice(54));
 }
 
+/**
+ * SDK demo
+ */
 export function exampleDisplay() {
 	fillScreen([0,0,64]);
 	
