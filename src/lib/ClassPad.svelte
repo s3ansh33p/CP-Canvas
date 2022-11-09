@@ -1,8 +1,28 @@
 <script lang="ts">
 	import { width, height, pixelRatio, zoomFactor } from "../specs";
+
+	function handleTouch(ev) {
+		// check if any canvas element in in the path
+		const path = ev.composedPath();
+		const canvas = path.find((el) => el.tagName === "CANVAS");
+		if (canvas) return;
+		// check if path has cp-button class
+		let button = null;
+		for (let i = 0; i < path.length; i++) {
+			if (path[i].classList && path[i].classList.contains("cp-button")) {
+				button = path[i];
+				break;
+			}
+		}
+		if (!button) return;
+		// get key data
+		const key = button.getAttribute("data-cp");
+		console.log("Pressed key:", key);
+	}
+
 </script>
 
-<div id="classpad" style="--zoomFactor: {$zoomFactor}">
+<div id="classpad" style="--zoomFactor: {$zoomFactor}" on:mousedown={handleTouch}>
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -1162,14 +1182,14 @@
 				rx="7"
 				ry="7"
 			/>
-			<g transform="translate(0 54)">
+			<g transform="translate(0 54)" class="cp-button" data-cp="KEYCODE_TIMES">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#F)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1231,41 +1251,44 @@
 				fill-rule="evenodd"
 				d="M-638 1019.4c-54.4 0-95-23-95-128v-1135c0-75 15.8-128 109.9-128H-249c94 0 109.9 53 109.9 128v1135c0 105-40.6 128-95 128h-161.4z"
 			/>
-			<rect
-				width="76"
-				height="44"
-				x="511"
-				y="709.4"
-				fill="url(#M)"
-				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				rx="8"
-				ry="8"
-			/>
-			<rect
-				width="68"
-				height="35"
-				x="515"
-				y="713.4"
-				fill="url(#N)"
-				rx="4"
-				ry="4"
-			/>
-			<path
-				fill="url(#O)"
-				d="M519 1122a7 7 0 0 0-7 7v28a7 7 0 0 0 7 7h4.3l1.3-4H519a4 4 0 0 1-4-4v-27a4 4 0 0 1 4-4h60a4 4 0 0 1 3.5 2l3-.4a7 7 0 0 0-6.5-4.6h-60z"
-				transform="translate(0 -411.6)"
-			/>
-			<g transform="translate(0 108)">
+			<g class="cp-button" data-cp="KEYCODE_DIVIDE">
+				<rect
+					width="76"
+					height="44"
+					x="511"
+					y="709.4"
+					fill="url(#M)"
+					stroke="var(--btn-border-stroke)"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					rx="8"
+					ry="8"
+				/>
+				<rect
+					width="68"
+					height="35"
+					x="515"
+					y="713.4"
+					fill="url(#N)"
+					rx="4"
+					ry="4"
+				/>
+				<path
+					fill="url(#O)"
+					d="M519 1122a7 7 0 0 0-7 7v28a7 7 0 0 0 7 7h4.3l1.3-4H519a4 4 0 0 1-4-4v-27a4 4 0 0 1 4-4h60a4 4 0 0 1 3.5 2l3-.4a7 7 0 0 0-6.5-4.6h-60z"
+					transform="translate(0 -411.6)"
+				/>
+			</g>
+			
+			<g transform="translate(0 108)" class="cp-button" data-cp="KEYCODE_MINUS">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#P)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1287,14 +1310,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(0 162)">
+			<g transform="translate(0 162)" class="cp-button" data-cp="KEYCODE_PLUS">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#S)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1316,14 +1339,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(0 216)">
+			<g transform="translate(0 216)" class="cp-button" data-cp="KEYCODE_EXE">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#V)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1345,14 +1368,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-90)">
+			<g transform="translate(-90)" class="cp-button" data-cp="KEYCODE_POWER">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#Y)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1374,14 +1397,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-180)">
+			<g transform="translate(-180)" class="cp-button" data-cp="KEYCODE_Z">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#ab)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1403,14 +1426,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-270)">
+			<g transform="translate(-270)" class="cp-button" data-cp="KEYCODE_Y">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#ae)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1432,14 +1455,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-360)">
+			<g transform="translate(-360)" class="cp-button" data-cp="KEYCODE_X">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#ah)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1461,14 +1484,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-450 54)">
+			<g transform="translate(-450 54)" class="cp-button" data-cp="KEYCODE_OPEN_PARENTHESIS">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#ak)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1490,14 +1513,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-450)">
+			<g transform="translate(-450)" class="cp-button" data-cp="KEYCODE_EQUALS">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#an)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1519,14 +1542,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-450 108)">
+			<g transform="translate(-450 108)" class="cp-button" data-cp="KEYCODE_CLOSE_PARENTHESIS">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#aq)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1548,14 +1571,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-450 162)">
+			<g transform="translate(-450 162)" class="cp-button" data-cp="KEYCODE_COMMA">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#at)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1577,14 +1600,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-450 216)">
+			<g transform="translate(-450 216)" class="cp-button" data-cp="KEYCODE_NEGATIVE">
 				<rect
 					width="76"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#aw)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1606,14 +1629,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-425 -113)">
+			<g transform="translate(-425 -113)" class="cp-button" data-cp="KEYCODE_KEYBOARD">
 				<rect
 					width="116"
 					height="36"
 					x="511"
 					y="709.4"
 					fill="url(#az)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1635,14 +1658,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-425 -65)">
+			<g transform="translate(-425 -65)" class="cp-button" data-cp="KEYCODE_SHIFT">
 				<rect
 					width="116"
 					height="36"
 					x="511"
 					y="709.4"
 					fill="url(#aC)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1664,14 +1687,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-65 -113)">
+			<g transform="translate(-65 -113)" class="cp-button" data-cp="KEYCODE_BACKSPACE">
 				<rect
 					width="116"
 					height="36"
 					x="511"
 					y="709.4"
 					fill="url(#aF)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1693,14 +1716,14 @@
 					transform="translate(0 -411.6)"
 				/>
 			</g>
-			<g transform="translate(-65 -65)">
+			<g transform="translate(-65 -65)" class="cp-button" data-cp="KEYCODE_CLEAR">
 				<rect
 					width="116"
 					height="36"
 					x="511"
 					y="709.4"
 					fill="url(#aI)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1762,6 +1785,8 @@
 				ry="47.5"
 			/>
 			<path
+				class="cp-button cp-button-arrow"
+				data-cp="KEYCODE_UP"
 				fill="#7f7f7f"
 				stroke="url(#aR)"
 				stroke-linecap="round"
@@ -1781,6 +1806,8 @@
 				ry="2"
 			/>
 			<path
+				class="cp-button cp-button-arrow"
+				data-cp="KEYCODE_DOWN"
 				fill="#7f7f7f"
 				stroke="url(#aU)"
 				stroke-linecap="round"
@@ -1789,6 +1816,8 @@
 				transform="scale(-1)"
 			/>
 			<path
+				class="cp-button cp-button-arrow"
+				data-cp="KEYCODE_LEFT"
 				fill="#7f7f7f"
 				stroke="url(#aV)"
 				stroke-linecap="round"
@@ -1797,6 +1826,8 @@
 				transform="rotate(-90 255.8 641.5)"
 			/>
 			<path
+				class="cp-button cp-button-arrow"
+				data-cp="KEYCODE_RIGHT"
 				fill="#7f7f7f"
 				stroke="url(#aW)"
 				stroke-linecap="round"
@@ -1809,14 +1840,14 @@
 				d="m245 1098.7-2.5 6.7c1.1.4 2.3.6 3.5.6h154c2 0 3.8-.6 5.6-1.7l-4-5.6c-.5.2-1 .3-1.6.3H247l-2-.3z"
 				transform="translate(0 -411.6)"
 			/>
-			<g transform="translate(-117 216)">
+			<g transform="translate(-117 216)" class="cp-button" data-cp="KEYCODE_EXP">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#aY)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1833,14 +1864,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-117 162)">
+			<g transform="translate(-117 162)" class="cp-button" data-cp="KEYCODE_3">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#ba)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1857,14 +1888,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-117 108)">
+			<g transform="translate(-117 108)" class="cp-button" data-cp="KEYCODE_6">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bc)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1881,14 +1912,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-117 54)">
+			<g transform="translate(-117 54)" class="cp-button" data-cp="KEYCODE_9">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#be)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1905,14 +1936,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-238 216)">
+			<g transform="translate(-238 216)" class="cp-button" data-cp="KEYCODE_DOT">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bg)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1929,14 +1960,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-238 162)">
+			<g transform="translate(-238 162)" class="cp-button" data-cp="KEYCODE_2">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bi)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1953,14 +1984,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-238 108)">
+			<g transform="translate(-238 108)" class="cp-button" data-cp="KEYCODE_5">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bk)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -1977,14 +2008,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-238 54)">
+			<g transform="translate(-238 54)" class="cp-button" data-cp="KEYCODE_8">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bm)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -2011,14 +2042,14 @@
 				rx="8"
 				ry="8"
 			/>
-			<g transform="translate(-359 216)">
+			<g transform="translate(-359 216)" class="cp-button" data-cp="KEYCODE_0">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bo)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -2035,14 +2066,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-359 162)">
+			<g transform="translate(-359 162)" class="cp-button" data-cp="KEYCODE_1">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bq)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -2059,14 +2090,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-359 108)">
+			<g transform="translate(-359 108)" class="cp-button" data-cp="KEYCODE_4">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bs)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -2083,14 +2114,14 @@
 					ry="4"
 				/>
 			</g>
-			<g transform="translate(-359 54)">
+			<g transform="translate(-359 54)" class="cp-button" data-cp="KEYCODE_7">
 				<rect
 					width="102"
 					height="44"
 					x="511"
 					y="709.4"
 					fill="url(#bu)"
-					stroke="#000"
+					stroke="var(--btn-border-stroke)"
 					stroke-linecap="round"
 					stroke-linejoin="round"
 					stroke-width="2"
@@ -2110,6 +2141,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2124,6 +2156,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2159,6 +2192,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2173,6 +2207,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2187,6 +2222,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2201,6 +2237,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2215,6 +2252,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2229,6 +2267,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2243,6 +2282,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2257,6 +2297,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2271,6 +2312,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2285,6 +2327,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#3d3d3d"
@@ -2300,6 +2343,7 @@
 			<path
 				fill="#3d3d3d"
 				d="M327 946.4a4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4z"
+				class="cp-button-label"
 			/>
 			<path
 				fill="#fff"
@@ -2310,10 +2354,12 @@
 				letter-spacing="0"
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			/>
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2329,6 +2375,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2343,6 +2390,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2357,6 +2405,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2371,6 +2420,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Britannic Bold, &quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2386,6 +2436,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2401,6 +2452,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2416,6 +2468,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2430,6 +2483,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2444,6 +2498,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2458,6 +2513,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2472,6 +2528,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2486,6 +2543,7 @@
 			<g
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2501,6 +2559,7 @@
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;;text-align:center"
 				text-anchor="middle"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#42caf7"
@@ -2516,6 +2575,7 @@
 				style="line-height:125%;-inkscape-font-specification:&quot;Script MT Bold, Bold&quot;;text-align:center"
 				text-anchor="middle"
 				word-spacing="0"
+				class="cp-button-label"
 			>
 				<path
 					fill="#fff"
@@ -2535,6 +2595,7 @@
 				font-weight="400"
 				overflow="visible"
 				style="line-height:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;block-progression:tb;white-space:normal;isolation:auto;mix-blend-mode:normal;solid-color:#000;solid-opacity:1"
+				class="cp-button-label"
 			/>
 			<path
 				fill="#42caf7"
@@ -2544,11 +2605,13 @@
 				font-weight="400"
 				overflow="visible"
 				style="line-height:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;block-progression:tb;white-space:normal;isolation:auto;mix-blend-mode:normal;solid-color:#000;solid-opacity:1"
+				class="cp-button-label"
 			/>
 			<path
 				fill="#fff"
 				fill-rule="evenodd"
 				d="m500 607.4-12 6.9 12.2 7v-4H520v-6h-20z"
+				class="cp-button-label"
 			/>
 			<path
 				fill="#272727"

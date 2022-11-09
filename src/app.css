@@ -79,3 +79,22 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* CLASSPAD UI */
+.cp-button:hover {
+  --btn-border-stroke: #bbff00;
+  cursor: pointer;
+}
+
+.cp-button-arrow:hover {
+  stroke-width: 3px;
+  stroke: var(--btn-border-stroke);
+}
+
+#classpad {
+  --btn-border-stroke: black;
+}
+
+.cp-button-label {
+  pointer-events: none;
+}

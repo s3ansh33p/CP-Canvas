@@ -30,6 +30,8 @@
 			<button on:click={() => Debug_Printf(0, 1, true, "Hello...")}
 				>Hello</button
 			>
+			<button on:click={() => Debug_Printf(0, 1, true, "World...")}
+				>World</button>
 		</div>
 	</div>
 </main>
@@ -37,8 +39,10 @@
 <style>
 	.toolbar {
 		position: fixed;
-		top: 2rem;
-		left: 6rem;
+		/* top: 2rem; */
+		/* left: 6rem; */
+		top: 0;
+		left: 0;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
