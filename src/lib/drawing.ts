@@ -63,6 +63,14 @@ export function Debug_Printf(
 	}
 }
 
+export function drawAllDebug() {
+	// print all characters
+	Debug_Printf(0, 1, true, charmap.slice(0, 54));
+	Debug_Printf(0, 2, true, charmap.slice(54));
+	Debug_Printf(0, 3, false, charmap.slice(0, 54));
+	Debug_Printf(0, 4, false, charmap.slice(54));
+}
+
 /**
  * Just a simple draw function
  */

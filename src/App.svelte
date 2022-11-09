@@ -3,7 +3,7 @@
 	import SubPixel from "./lib/SubPixel.svelte";
 	import Canvas from "./lib/Canvas.svelte";
 	import ClassPad from "./lib/ClassPad.svelte";
-	import { clearScreen, Debug_Printf, doDrawPixels } from "./lib/drawing";
+	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug } from "./lib/drawing";
 	import TouchTest from "./lib/TouchTest.svelte";
 	import { onMount } from "svelte";
 
@@ -30,8 +30,7 @@
 			<button on:click={() => Debug_Printf(0, 1, true, "Hello...")}
 				>Hello</button
 			>
-			<button on:click={() => Debug_Printf(0, 1, true, "World...")}
-				>World</button>
+			<button on:click={drawAllDebug}>DrawAllDebug</button>
 		</div>
 	</div>
 </main>
