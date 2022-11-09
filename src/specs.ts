@@ -41,39 +41,6 @@ export const props = deriveObject({
 
 export const key: Symbol = Symbol();
 
-export const getState = () => {
-	const api = getContext(key);
-	return api.getState();
-};
-
-export type RenderElement = {
-	ready: boolean;
-	mounted: boolean;
-	render?: Function;
-	setup?: Function;
-};
-
-export const renderable = (render) => {
-	const api = getContext(key);
-	const element: RenderElement = {
-		ready: false,
-		mounted: false,
-	};
-	if (typeof render === "function") element.render = render;
-	else if (render) {
-		if (render.render) element.render = render.render;
-		if (render.setup) element.setup = render.setup;
-	}
-	api.add(element);
-	onMount(() => {
-		element.mounted = true;
-		return () => {
-			api.remove(element);
-			element.mounted = false;
-		};
-	});
-};
-
 function deriveObject(obj) {
 	const keys = Object.keys(obj);
 	const list = keys.map((key) => {

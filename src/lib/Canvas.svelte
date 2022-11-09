@@ -47,24 +47,6 @@
 		},
 	});
 
-	// function render(dt) {
-	// 	context.save();
-	// 	context.scale($pixelRatio, $pixelRatio);
-	// 	listeners.forEach((entity) => {
-	// 		try {
-	// 			if (entity.mounted && entity.ready && entity.render) {
-	// 				entity.render($props, dt);
-	// 			}
-	// 		} catch (err) {
-	// 			console.error(err);
-	// 			if (killLoopOnError) {
-	// 				cancelAnimationFrame(frame);
-	// 				console.warn("Animation loop stopped due to an error");
-	// 			}
-	// 		}
-	// 	});
-	// 	context.restore();
-	// }
 
 	function handleResize() {
 		//TODO: calculate pixel ratio
@@ -99,21 +81,6 @@
 		});
 	}
 
-	// function createLoop(fn) {
-	// 	let elapsed = 0;
-	// 	let lastTime = performance.now();
-	// 	(function loop() {
-	// 		frame = requestAnimationFrame(loop);
-	// 		const beginTime = performance.now();
-	// 		const dt = (beginTime - lastTime) / 1000;
-	// 		lastTime = beginTime;
-	// 		elapsed += dt;
-	// 		fn(elapsed, dt);
-	// 	})();
-	// 	return () => {
-	// 		cancelAnimationFrame(frame);
-	// 	};
-	// }
 </script>
 
 <canvas
