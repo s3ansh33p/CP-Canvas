@@ -67,7 +67,7 @@
 		dispatch("touchDown", {
 			event: ev,
 		});
-		console.log(ev);
+		// console.log(ev);
 		handleTouch(...touchEventToPosition(ev));
 	}
 	function handleTouchUp(ev) {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Canvas from "./lib/Canvas.svelte";
 	import ClassPad from "./lib/ClassPad.svelte";
-	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug, exampleDisplay, LCD_ClearScreen, LCD_Refresh } from "./lib/drawing";
+	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug, exampleDisplay, LCD_ClearScreen, LCD_Refresh, Debug_SelectMode1 } from "./lib/drawing";
 	import { onMount } from "svelte";
 
 	onMount(() => {
@@ -25,6 +25,7 @@
 			<button on:click={exampleDisplay}>ExampleDisplay</button>
 			<button on:click={LCD_Refresh}>LCD_Refresh</button>
 			<button on:click={LCD_ClearScreen}>LCD_ClearScreen</button>
+			<button on:click={Debug_SelectMode1}>Debug_SelectMode1</button>
 		</div>
 	</div>
 </main>
