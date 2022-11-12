@@ -506,6 +506,11 @@ function debugSelect1KeyHandler() {
 	// check if any key is pressed
 	if (inputs.length > 0) {
 		// get first key
+		// check the event type is "EVENT_KEY"
+		if (inputs[0].type != "EVENT_KEY") {
+			console.log("debugSelect1KeyHandler: not a key event");
+			return;
+		}
 		let key = inputs[0].data.keyCode;
 		console.log("key", key);
 		// check if key is 1
