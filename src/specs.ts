@@ -14,7 +14,7 @@ export const time = writable(0);
 // classpad is a store that contains the state of the classpad
 // contains cpu, lcd, keyboard, etc
 export const classpad = writable({
-	cpu: {
+	cpu: { // might be useful to have a cpu store by itself
 		r0: 0, r1: 0, r2: 0, r3: 0,
 		r4: 0, r5: 0, r6: 0, r7: 0,
 		r8: 0, r9: 0, r10: 0, r11: 0,
@@ -26,7 +26,11 @@ export const classpad = writable({
 	debug: {
 		x: 0,
 		y: 0
-	}		
+	},
+	waitingForKeypress: false,		
+	waitingForAnyInput: false,
+	currentInputs: [], // array of InputEvents,
+	inputCallback: null // String of the callback function
 });
 
 // A more convenient store for grabbing all game props
@@ -40,6 +44,42 @@ export const props = deriveObject({
 });
 
 export const key: Symbol = Symbol();
+
+// mouse state
+export const mouseDown = writable(false);
+
+export const getState = () => {
+	const api = getContext(key);
+	return api.getState();
+};
+
+export type RenderElement = {
+	ready: boolean;
+	mounted: boolean;
+	render?: Function;
+	setup?: Function;
+};
+
+export const renderable = (render) => {
+	const api = getContext(key);
+	const element: RenderElement = {
+		ready: false,
+		mounted: false,
+	};
+	if (typeof render === "function") element.render = render;
+	else if (render) {
+		if (render.render) element.render = render.render;
+		if (render.setup) element.setup = render.setup;
+	}
+	api.add(element);
+	onMount(() => {
+		element.mounted = true;
+		return () => {
+			api.remove(element);
+			element.mounted = false;
+		};
+	});
+};
 
 function deriveObject(obj) {
 	const keys = Object.keys(obj);

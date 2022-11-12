@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { width, height, pixelRatio, zoomFactor } from "../specs";
+  	import { get } from "svelte/store";
+	import { width, height, pixelRatio, zoomFactor, classpad } from "../specs";
+	import { keyEventHandler } from "../lib/helpers";
 
 	function handleTouch(ev) {
 		// check if any canvas element in in the path
@@ -17,7 +19,8 @@
 		if (!button) return;
 		// get key data
 		const key = button.getAttribute("data-cp");
-		console.log("Pressed key:", key);
+		// console.log("Key event:", key);
+		keyEventHandler(key);
 	}
 
 </script>

@@ -54,7 +54,6 @@ export function LCD_Refresh() {
 	}
 	// draw imageData
 	ctx.putImageData(imageData, 0, 0);
-	console.log("LCD_Refresh", VRAM);
 	// end timer
 	let timeEnd = performance.now();
 	console.log("LCD_Refresh took", timeEnd - timeStart, "ms");
@@ -71,7 +70,7 @@ export function Debug_SetCursorPosition(
 	classpadStore.debug.y = y;
 	// store cursor position
 	classpad.set(classpadStore);
-	console.log("Debug_SetCursorPosition", x, y);
+	// console.log("Debug_SetCursorPosition", x, y);
 }
 
 /**
@@ -114,9 +113,6 @@ export function rectangle(
 	h: number,
 	color: RGBColor
 ) {
-	// get vram
-	const VRAM = get(classpad).vram;
-	// vram is a 320x528 array of 3 bytes
 	for (let _x = x; _x < x + w; _x += 1) {
 		for (let _y = y; _y < y + h; _y += 1) {
 			setPixel(_x, _y, color);
@@ -293,9 +289,10 @@ export function setPixel(
 export function LCD_ClearScreen() {
 	// get vram
 	const VRAM = get(classpad).vram;
-	// vram is a 320x528 array of 3 bytes
-	for (let i = 0; i < 320 * 528 * 3; i++) {
-		VRAM[i] = 0;
+	// vram is a 320x528 array of 16bit colors
+	for (let i = 0; i < 320 * 528; i++) {
+		// set to white
+		VRAM[i] = 0xFFFF;
 	}
 	console.log("LCD_ClearScreen");
 }
@@ -307,18 +304,16 @@ export function LCD_ClearScreen() {
  */
 export function Debug_PrintString(
 	text: string,
-	invert: boolean
+	invert: boolean,
+	large: boolean = true
 ) {
-	let canvas = get(canvasStore);
-	let ctx = get(contextStore);
-
 	let bg = INT_HEXTORGB(invert ? "#fff" : "#000");
 	let fg = INT_HEXTORGB(invert ? "#000" : "#fff");
 
 	// Font width and height
 	let fw = 6;
 	let fh = 12;
-	console.log("Debug_PrintString", text, invert, bg, fg);
+	// console.log("Debug_PrintString: '" + text + "' " + invert + " (" + bg + ") (" + fg + ")" + " " + (large ? "large" : "small"));
 
 	// get debug cursor position
 	let classpadState = get(classpad);
@@ -331,31 +326,69 @@ export function Debug_PrintString(
 	let _x = 0;
 	let _y = 0;
 
-	for (let l of letters) {
-		let char = small_map[l];
-		_x = -1;
-		_y = 0;
+	if (!large) {
+		for (let l of letters) {
+			let char = small_map[l];
+			_x = -1;
+			_y = 0;
 
-		// write background to classpad vram
-		rectangle(fw * x, fh * y, fw, fh, bg);
+			// write background to classpad vram
+			rectangle(fw * x, fh * y, fw, fh, bg);
 
-		if (char) {
-			// console.log(char);
-			let [mx, my] = char["size"];
+			if (char) {
+				// console.log(char);
+				let [mx, my] = char["size"];
 
-			for (let p of char["data"]) {
-				if (_x >= mx) {
-					_y += 1;
-					_x = 0;
-				} else {
-					_x++;
+				for (let p of char["data"]) {
+					if (_x >= mx) {
+						_y += 1;
+						_x = 0;
+					} else {
+						_x++;
+					}
+					if (p == 1) {
+						setPixel(1 + fw * x + _x, 1 + fh * y + _y, fg);
+					}
 				}
-				if (p == 1) {
-					setPixel(1 + fw * x + _x, 1 + fh * y + _y, fg);
-				}
+
+				x++;
 			}
+		}
+	} else {
+		// Large font so double the size
+		// the same sort of thing as above, but moving the if large outside of the loop to avoid the if check every time
+		fw *= 2;
+		fh *= 2;
+		for (let l of letters) {
+			let char = small_map[l];
+			_x = -1;
+			_y = 0;
 
-			x++;
+			// write background to classpad vram
+			rectangle(fw * x, fh * y, fw, fh, bg);
+
+			if (char) {
+				// console.log(char);
+				let [mx, my] = char["size"];
+
+				for (let p of char["data"]) {
+					if (_x >= mx) {
+						_y += 2;
+						_x = 0;
+					} else {
+						_x++;
+					}
+					if (p == 1) {
+						// set 2x2 pixels
+						setPixel(1 + fw * x + _x * 2 + 1, 1 + fh * y + _y + 1, fg);
+						setPixel(1 + fw * x + _x * 2 + 2, 1 + fh * y + _y + 1, fg);
+						setPixel(1 + fw * x + _x * 2 + 1, 1 + fh * y + _y + 2, fg);
+						setPixel(1 + fw * x + _x * 2 + 2, 1 + fh * y + _y + 2, fg);
+					}
+				}
+
+				x++;
+			}
 		}
 	}
 	// set debug cursor position
@@ -376,7 +409,7 @@ export function Debug_Printf(
 	text: string
 ) {
 	Debug_SetCursorPosition(x, y);
-	Debug_PrintString(text, invert);
+	Debug_PrintString(text, invert, false);
 }
 
 /**
@@ -384,17 +417,28 @@ export function Debug_Printf(
  */
 export function drawAllDebug() {
 	// print all characters
-	Debug_Printf(0, 1, true, charmap.slice(0, 54));
-	Debug_Printf(0, 2, true, charmap.slice(54));
-	Debug_Printf(0, 3, false, charmap.slice(0, 54));
-	Debug_Printf(0, 4, false, charmap.slice(54));
+	Debug_Printf(0, 1, true, charmap.slice(0, 53));
+	Debug_Printf(0, 2, true, charmap.slice(53));
+	Debug_Printf(0, 3, false, charmap.slice(0, 53));
+	Debug_Printf(0, 4, false, charmap.slice(53));
 }
 
+/**
+ * Color function for easier copy/paste from c code
+ * Returns RGB888 color
+ */
+function color(
+	r: number,
+	g: number,
+	b: number
+) : RGBColor {
+	return [r, g, b];
+}
 /**
  * SDK demo
  */
 export function exampleDisplay() {
-	fillScreen([0,0,64]);
+	fillScreen(color(0,0,64));
 	
 	//Example for Debug_Printf(x,y,invert_color,0,format_string) //(small text)
 	Debug_Printf(10, 1, false, "Test");
@@ -409,16 +453,249 @@ export function exampleDisplay() {
 	//Example for setPixel(x,y,color)
 	for (let x=0; x<256;x++){
 		for (let y=0; y<256; y++){
-			setPixel(50+x,250+y, [x,y,0] );
+			setPixel(50+x,250+y, color(x,y,0) );
 		}
 	}
 	// get debug state
-	triangle(10,20,40,250,300,100,[0,255,0],[0,0,255]);
+	triangle(10,20,40,250,300,100,color(0,255,0),color(0,0,255));
 	
 	//Example for line(x1,y1,x2,y2,color);
-	line(100,30,290,500,[255,0,0]);      //Use RGB color
+	line(100,30,290,500,color(255,0,0));      //Use RGB color
 	LCD_Refresh();
 }
+
+// 80062F78
+export function Debug_SelectMode1() {
+	LCD_ClearScreen();
+	Debug_SetCursorPosition(0, 0);
+	Debug_PrintString("====<< SELECT  MODE >>====", true)
+	Debug_SetCursorPosition(1, 2);
+	Debug_PrintString("1.TEST MENU", true);
+	Debug_SetCursorPosition(1, 4);
+	Debug_PrintString("2.FAT TEST MENU", true);
+	Debug_SetCursorPosition(1, 6);
+	Debug_PrintString("3.DEBUG MODE ON", true);
+	Debug_SetCursorPosition(1, 8);
+	// 80062FC2 - calls Debug_OSABSROMInfo
+	Debug_PrintString("OS_Date ", true);
+	Debug_SetCursorPosition(3, 9);
+	// gets OS date - simulated here
+	Debug_PrintString("2017/05/12 15:15", true);
+
+	Debug_SetCursorPosition(1, 10);
+	Debug_PrintString("ABS_Date ", true);
+	// gets ABS date - simulated here
+	Debug_SetCursorPosition(3, 11);
+	Debug_PrintString("2012/09/04 15:11", true);
+
+	Debug_SetCursorPosition(1, 12);
+	Debug_PrintString("ROM_Ver ", true);
+	// gets ROM version - simulated here
+	Debug_PrintString("02.01.2000.0000", true);
+	
+	LCD_Refresh();
+	// set classpad state
+	let classpadState = get(classpad);
+	classpadState.cpu.r0 = 1; // menu Index
+	classpad.set(classpadState);
+	// then calls 80062838, which will get input
+	AwaitKeyPress(debugSelect1KeyHandler);
+}
+
+// 80062A94
+function Debug_TestMenu() {
+	LCD_ClearScreen();
+	// skipping some stuff, but just shows ROM version
+	Debug_SetCursorPosition(2, 0x11); // 17
+	Debug_PrintString("ROM_Ver ", true);
+	Debug_PrintString("02.01.2000.0000", true);
+	
+	Debug_SetCursorPosition(2, 0xF);
+	// Debug_PrintString("CALIBRATION  XX", true);
+	Debug_PrintString("CALIBRATION  --", true); // seems to be -- when tested on both modded and unmodded firmware
+	// some check for "OK", "NG" or "--" on the last 2 characters of calibration
+	
+	Debug_TestMenu_Inner();
+
+	AwaitKeyPress(debugTestMenuKeyHandler);
+}
+
+function Debug_TestMenu_Inner() {
+	// main loop here
+	// I'm making this bit a little more concise
+	let stringsMenu = [
+		"### LY777D TEST MENU 111 ",
+		"1.PATTERN AUTO CHECK",
+		"2.FUNC AUTO CHECK",
+		"3.TEST FUNCTION",
+		"4.VERSION",
+		"5.SERVICE",
+		"6.VERSION AND SUM",
+		"7.BRIGHTNESS",
+		"8.CALIBRATION",
+		"9.PINCH CHECK",
+		"10.OFF CURRENT",
+		"11.SEND-RECEIVE",
+		"12.RECEIVE-SEND",
+		"0.END(RESET)"
+	];
+	let menuIndex = get(classpad).cpu.r0;
+	// console.log("menuIndex", menuIndex);
+	// in reality, this is slighly more complicated but more optimized, but this is fine
+	for (let i = 0; i < stringsMenu.length; i++) {
+		let joinedString = " " + stringsMenu[i] + " ".repeat(26 - stringsMenu[i].length);
+		Debug_SetCursorPosition(0, i);
+		Debug_PrintString(joinedString, (i != menuIndex));
+	}
+
+	LCD_Refresh();
+}
+
+function debugTestMenuKeyHandler() {
+	// get classpad state
+	let classpadState = get(classpad);
+	// get r0 - has current menu index
+	let r0 = classpadState.cpu.r0;
+	// get key pressed
+	let input = classpadState.currentInputs[0];
+	if (input.length == 0) return;
+	// check event type
+	let exec = false;
+	if (input.type == "EVENT_KEY") {
+		let key = input.data.keyCode;
+		// console.log("debugTestMenuKeyHandler: key pressed: " + key);
+		if (key == "KEYCODE_UP") {
+			r0--;
+			if (r0 < 0) r0 = 13;
+			classpadState.cpu.r0 = r0;
+			classpad.set(classpadState);
+			Debug_TestMenu_Inner();
+		} else if (key == "KEYCODE_DOWN") {
+			r0++;
+			if (r0 > 13) r0 = 0;
+			classpadState.cpu.r0 = r0;
+			classpad.set(classpadState);
+			Debug_TestMenu_Inner();
+		} else if (key == "KEYCODE_EXE") {
+			// choose menu item and call function
+			// console.log("debugTestMenuKeyHandler: menu item " + r0);
+			exec = true;
+		}
+	} else if (input.type == "EVENT_TOUCH") {
+		// console.log("debugTestMenuKeyHandler: touch event");
+		// let touchX = input.data.p1_x;
+		let touchY = input.data.p1_y;
+		// divide into 24 pixel high rows.
+		// 0-23 is row 0, 24-47 is row 1, etc.
+		let row = Math.floor(touchY / 24);
+		if (row > 13) {
+			// ignore out of bounds
+			return;
+		}
+		// console.log("debugTestMenuKeyHandler: touch event: row " + row);
+		// if direction is TOUCH_UP, then execute 
+		// if direction is TOUCH_DOWN, or TOUCH_DRAG, then just set r0
+		if (input.data.direction == "TOUCH_UP") {
+			exec = true;
+		} else {
+			// check if row is different
+			if (row != r0) {
+				// set r0 to row
+				classpadState.cpu.r0 = row;
+				classpad.set(classpadState);
+				Debug_TestMenu_Inner();
+			}
+		}
+	}
+	if (exec) {
+		if (r0 == 1) {
+			console.log("debugTestMenuKeyHandler: pattern auto check");
+			// Debug_TestMenu_PatternAutoCheck();
+		} else if (r0 == 2) {
+			console.log("debugTestMenuKeyHandler: func auto check");
+			// Debug_TestMenu_FuncAutoCheck();
+		} else if (r0 == 3) {
+			console.log("debugTestMenuKeyHandler: test function");
+			// Debug_TestMenu_TestFunction();
+		} else if (r0 == 4) {
+			console.log("debugTestMenuKeyHandler: version");
+			// Debug_TestMenu_Version();
+		} else if (r0 == 5) {
+			console.log("debugTestMenuKeyHandler: service");
+			// Debug_TestMenu_Service();
+		} else if (r0 == 6) {
+			console.log("debugTestMenuKeyHandler: version and sum");
+			// Debug_TestMenu_VersionAndSum();
+		} else if (r0 == 7) {
+			console.log("debugTestMenuKeyHandler: brightness");
+			// Debug_TestMenu_Brightness();
+		} else if (r0 == 8) {
+			console.log("debugTestMenuKeyHandler: calibration");
+			// Debug_TestMenu_Calibration();
+		} else if (r0 == 9) {
+			console.log("debugTestMenuKeyHandler: pinch check");
+			// Debug_TestMenu_PinchCheck();
+		} else if (r0 == 10) {
+			console.log("debugTestMenuKeyHandler: off current");
+			// Debug_TestMenu_OffCurrent();
+		} else if (r0 == 11) {
+			console.log("debugTestMenuKeyHandler: send-receive");
+			// Debug_TestMenu_SendReceive();
+		} else if (r0 == 12) {
+			console.log("debugTestMenuKeyHandler: receive-send");
+			// Debug_TestMenu_ReceiveSend();
+		} else if (r0 == 13) {
+			console.log("debugTestMenuKeyHandler: end(reset)");
+			// Debug_TestMenu_EndReset();
+		}			
+		// else r0 == 0, but just re-renders the menu, so ignore 
+	}
+}
+
+// sub_80062838
+function debugSelect1KeyHandler() {
+	// get classpadState
+	let classpadState = get(classpad);
+	// get key state
+	let inputs = classpadState.currentInputs;
+	// console.log("debugSelect1KeyHandler", inputs);
+	// check if any key is pressed
+	if (inputs.length > 0) {
+		// get first key
+		// check the event type is "EVENT_KEY"
+		if (inputs[0].type != "EVENT_KEY") {
+			console.log("debugSelect1KeyHandler: not a key event");
+			return;
+		}
+		let key = inputs[0].data.keyCode;
+		// console.log("key", key);
+		// check if key is 1
+		if (key == "KEYCODE_1") {
+			// call Debug_TestMenu
+			// console.log("Debug_TestMenu");
+			Debug_TestMenu();
+		} else if (key == "KEYCODE_2") {
+			// call Debug_FATTestMenu
+			// Debug_FATTestMenu();
+			console.log("Debug_FATTestMenu");
+		} else if (key == "KEYCODE_3") {
+			// call Debug_DebugModeOn
+			// Debug_DebugModeOn();
+			console.log("Debug_DebugModeOn");
+		}
+		// wait for key
+	}
+	// wait for key
+}
+
+function AwaitKeyPress(functionCall: () => void) {
+	// set classpad state to wait for keypress
+	let classpadState = get(classpad);
+	classpadState.waitingForKeypress = true;
+	classpadState.inputCallback = functionCall;
+	// maybe set the function to call when key is pressed?
+}
+
 
 /**
  * Just a simple draw function
@@ -460,20 +737,4 @@ export function clearScreen() {
 
 	ctx.fillStyle = "#000000";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-/**
- * Called on canvas touch event
- * @param x touch X
- * @param y touch Y
- */
-export function handleTouch(x, y) {
-	let canvas = get(canvasStore);
-	let ctx = get(contextStore);
-
-	let r = 28;
-	let g = 142;
-	let b = 226;
-	ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-	ctx.fillRect(x, y, 2, 2);
 }
