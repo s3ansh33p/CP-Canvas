@@ -560,27 +560,54 @@ function debugTestMenuKeyHandler() {
 	let input = classpadState.currentInputs[0];
 	if (input.length == 0) return;
 	// check event type
-	if (input.type != "EVENT_KEY") {
-		console.log("debugTestMenuKeyHandler: not a key event");
-		return;
+	let exec = false;
+	if (input.type == "EVENT_KEY") {
+		let key = input.data.keyCode;
+		// console.log("debugTestMenuKeyHandler: key pressed: " + key);
+		if (key == "KEYCODE_UP") {
+			r0--;
+			if (r0 < 0) r0 = 13;
+			classpadState.cpu.r0 = r0;
+			classpad.set(classpadState);
+			Debug_TestMenu_Inner();
+		} else if (key == "KEYCODE_DOWN") {
+			r0++;
+			if (r0 > 13) r0 = 0;
+			classpadState.cpu.r0 = r0;
+			classpad.set(classpadState);
+			Debug_TestMenu_Inner();
+		} else if (key == "KEYCODE_EXE") {
+			// choose menu item and call function
+			// console.log("debugTestMenuKeyHandler: menu item " + r0);
+			exec = true;
+		}
+	} else if (input.type == "EVENT_TOUCH") {
+		// console.log("debugTestMenuKeyHandler: touch event");
+		// let touchX = input.data.p1_x;
+		let touchY = input.data.p1_y;
+		// divide into 24 pixel high rows.
+		// 0-23 is row 0, 24-47 is row 1, etc.
+		let row = Math.floor(touchY / 24);
+		if (row > 13) {
+			// ignore out of bounds
+			return;
+		}
+		// console.log("debugTestMenuKeyHandler: touch event: row " + row);
+		// if direction is TOUCH_UP, then execute 
+		// if direction is TOUCH_DOWN, or TOUCH_DRAG, then just set r0
+		if (input.data.direction == "TOUCH_UP") {
+			exec = true;
+		} else {
+			// check if row is different
+			if (row != r0) {
+				// set r0 to row
+				classpadState.cpu.r0 = row;
+				classpad.set(classpadState);
+				Debug_TestMenu_Inner();
+			}
+		}
 	}
-	let key = input.data.keyCode;
-	// console.log("debugTestMenuKeyHandler: key pressed: " + key);
-	if (key == "KEYCODE_UP") {
-		r0--;
-		if (r0 < 0) r0 = 13;
-		classpadState.cpu.r0 = r0;
-		classpad.set(classpadState);
-		Debug_TestMenu_Inner();
-	} else if (key == "KEYCODE_DOWN") {
-		r0++;
-		if (r0 > 13) r0 = 0;
-		classpadState.cpu.r0 = r0;
-		classpad.set(classpadState);
-		Debug_TestMenu_Inner();
-	} else if (key == "KEYCODE_EXE") {
-		// choose menu item and call function
-		// console.log("debugTestMenuKeyHandler: menu item " + r0);
+	if (exec) {
 		if (r0 == 1) {
 			console.log("debugTestMenuKeyHandler: pattern auto check");
 			// Debug_TestMenu_PatternAutoCheck();
@@ -623,7 +650,6 @@ function debugTestMenuKeyHandler() {
 		}			
 		// else r0 == 0, but just re-renders the menu, so ignore 
 	}
-	// ignore other keys
 }
 
 // sub_80062838
@@ -711,26 +737,4 @@ export function clearScreen() {
 
 	ctx.fillStyle = "#000000";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-/**
- * Called on canvas touch event
- * @param x touch X
- * @param y touch Y
- */
-export function handleTouch(x, y) {
-	let canvas = get(canvasStore);
-	let ctx = get(contextStore);
-
-	// round to nearest pixel
-	x = Math.round(x);
-	y = Math.round(y);
-
-	let r = 28;
-	let g = 142;
-	let b = 226;
-	ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-	ctx.fillRect(x, y, 2, 2);
-
-	console.log("Touch event: (" + x + "," + y + ")");
 }

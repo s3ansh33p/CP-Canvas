@@ -84,7 +84,6 @@
 				break;
 		}
 		if (key == null) return;
-		console.log("Translated key:", key);
 		keyEventHandler(key);
 	}
 </script>

@@ -45,6 +45,9 @@ export const props = deriveObject({
 
 export const key: Symbol = Symbol();
 
+// mouse state
+export const mouseDown = writable(false);
+
 export const getState = () => {
 	const api = getContext(key);
 	return api.getState();

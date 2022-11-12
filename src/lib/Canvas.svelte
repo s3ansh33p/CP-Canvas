@@ -5,6 +5,7 @@
 		setContext,
 		createEventDispatcher,
 	} from "svelte";
+  import { get } from "svelte/store";
 
 	import {
 		key,
@@ -15,10 +16,10 @@
 		pixelRatio,
 		props,
 		time,
+		mouseDown,
 	} from "../specs";
 
-	import { handleTouch } from "./drawing";
-	import { touchEventToPosition } from "./helpers";
+	import { touchEventToPosition, handleTouch } from "./helpers";
 
 	export let attributes = {};
 
@@ -68,17 +69,24 @@
 			event: ev,
 		});
 		// console.log(ev);
-		handleTouch(...touchEventToPosition(ev));
+		handleTouch(...touchEventToPosition(ev), "down");
+		mouseDown.set(true);
 	}
 	function handleTouchUp(ev) {
 		dispatch("touchUp", {
 			event: ev,
 		});
+		handleTouch(...touchEventToPosition(ev), "up");
+		mouseDown.set(false);
 	}
 	function handleTouchMove(ev) {
 		dispatch("touchMove", {
 			event: ev,
 		});
+		let isMouseDown = get(mouseDown);
+		if (isMouseDown) {
+			handleTouch(...touchEventToPosition(ev), "drag");
+		}
 	}
 
 </script>
