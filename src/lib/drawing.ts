@@ -70,7 +70,7 @@ export function Debug_SetCursorPosition(
 	classpadStore.debug.y = y;
 	// store cursor position
 	classpad.set(classpadStore);
-	console.log("Debug_SetCursorPosition", x, y);
+	// console.log("Debug_SetCursorPosition", x, y);
 }
 
 /**
@@ -313,7 +313,7 @@ export function Debug_PrintString(
 	// Font width and height
 	let fw = 6;
 	let fh = 12;
-	console.log("Debug_PrintString: '" + text + "' " + invert + " (" + bg + ") (" + fg + ")" + " " + (large ? "large" : "small"));
+	// console.log("Debug_PrintString: '" + text + "' " + invert + " (" + bg + ") (" + fg + ")" + " " + (large ? "large" : "small"));
 
 	// get debug cursor position
 	let classpadState = get(classpad);
@@ -466,6 +466,7 @@ export function exampleDisplay() {
 
 // 80062F78
 export function Debug_SelectMode1() {
+	LCD_ClearScreen();
 	Debug_SetCursorPosition(0, 0);
 	Debug_PrintString("====<< SELECT  MODE >>====", true)
 	Debug_SetCursorPosition(1, 2);
@@ -492,8 +493,137 @@ export function Debug_SelectMode1() {
 	// gets ROM version - simulated here
 	Debug_PrintString("02.01.2000.0000", true);
 	
+	LCD_Refresh();
+	// set classpad state
+	let classpadState = get(classpad);
+	classpadState.cpu.r0 = 1; // menu Index
+	classpad.set(classpadState);
 	// then calls 80062838, which will get input
 	AwaitKeyPress(debugSelect1KeyHandler);
+}
+
+// 80062A94
+function Debug_TestMenu() {
+	LCD_ClearScreen();
+	// skipping some stuff, but just shows ROM version
+	Debug_SetCursorPosition(2, 0x11); // 17
+	Debug_PrintString("ROM_Ver ", true);
+	Debug_PrintString("02.01.2000.0000", true);
+	
+	Debug_SetCursorPosition(2, 0xF);
+	// Debug_PrintString("CALIBRATION  XX", true);
+	Debug_PrintString("CALIBRATION  --", true); // seems to be -- when tested on both modded and unmodded firmware
+	// some check for "OK", "NG" or "--" on the last 2 characters of calibration
+	
+	Debug_TestMenu_Inner();
+
+	AwaitKeyPress(debugTestMenuKeyHandler);
+}
+
+function Debug_TestMenu_Inner() {
+	// main loop here
+	// I'm making this bit a little more concise
+	let stringsMenu = [
+		"### LY777D TEST MENU 111 ",
+		"1.PATTERN AUTO CHECK",
+		"2.FUNC AUTO CHECK",
+		"3.TEST FUNCTION",
+		"4.VERSION",
+		"5.SERVICE",
+		"6.VERSION AND SUM",
+		"7.BRIGHTNESS",
+		"8.CALIBRATION",
+		"9.PINCH CHECK",
+		"10.OFF CURRENT",
+		"11.SEND-RECEIVE",
+		"12.RECEIVE-SEND",
+		"0.END(RESET)"
+	];
+	let menuIndex = get(classpad).cpu.r0;
+	// console.log("menuIndex", menuIndex);
+	// in reality, this is slighly more complicated but more optimized, but this is fine
+	for (let i = 0; i < stringsMenu.length; i++) {
+		let joinedString = " " + stringsMenu[i] + " ".repeat(26 - stringsMenu[i].length);
+		Debug_SetCursorPosition(0, i);
+		Debug_PrintString(joinedString, (i != menuIndex));
+	}
+
+	LCD_Refresh();
+}
+
+function debugTestMenuKeyHandler() {
+	// get classpad state
+	let classpadState = get(classpad);
+	// get r0 - has current menu index
+	let r0 = classpadState.cpu.r0;
+	// get key pressed
+	let input = classpadState.currentInputs[0];
+	if (input.length == 0) return;
+	// check event type
+	if (input.type != "EVENT_KEY") {
+		console.log("debugTestMenuKeyHandler: not a key event");
+		return;
+	}
+	let key = input.data.keyCode;
+	// console.log("debugTestMenuKeyHandler: key pressed: " + key);
+	if (key == "KEYCODE_UP") {
+		r0--;
+		if (r0 < 0) r0 = 13;
+		classpadState.cpu.r0 = r0;
+		classpad.set(classpadState);
+		Debug_TestMenu_Inner();
+	} else if (key == "KEYCODE_DOWN") {
+		r0++;
+		if (r0 > 13) r0 = 0;
+		classpadState.cpu.r0 = r0;
+		classpad.set(classpadState);
+		Debug_TestMenu_Inner();
+	} else if (key == "KEYCODE_EXE") {
+		// choose menu item and call function
+		// console.log("debugTestMenuKeyHandler: menu item " + r0);
+		if (r0 == 1) {
+			console.log("debugTestMenuKeyHandler: pattern auto check");
+			// Debug_TestMenu_PatternAutoCheck();
+		} else if (r0 == 2) {
+			console.log("debugTestMenuKeyHandler: func auto check");
+			// Debug_TestMenu_FuncAutoCheck();
+		} else if (r0 == 3) {
+			console.log("debugTestMenuKeyHandler: test function");
+			// Debug_TestMenu_TestFunction();
+		} else if (r0 == 4) {
+			console.log("debugTestMenuKeyHandler: version");
+			// Debug_TestMenu_Version();
+		} else if (r0 == 5) {
+			console.log("debugTestMenuKeyHandler: service");
+			// Debug_TestMenu_Service();
+		} else if (r0 == 6) {
+			console.log("debugTestMenuKeyHandler: version and sum");
+			// Debug_TestMenu_VersionAndSum();
+		} else if (r0 == 7) {
+			console.log("debugTestMenuKeyHandler: brightness");
+			// Debug_TestMenu_Brightness();
+		} else if (r0 == 8) {
+			console.log("debugTestMenuKeyHandler: calibration");
+			// Debug_TestMenu_Calibration();
+		} else if (r0 == 9) {
+			console.log("debugTestMenuKeyHandler: pinch check");
+			// Debug_TestMenu_PinchCheck();
+		} else if (r0 == 10) {
+			console.log("debugTestMenuKeyHandler: off current");
+			// Debug_TestMenu_OffCurrent();
+		} else if (r0 == 11) {
+			console.log("debugTestMenuKeyHandler: send-receive");
+			// Debug_TestMenu_SendReceive();
+		} else if (r0 == 12) {
+			console.log("debugTestMenuKeyHandler: receive-send");
+			// Debug_TestMenu_ReceiveSend();
+		} else if (r0 == 13) {
+			console.log("debugTestMenuKeyHandler: end(reset)");
+			// Debug_TestMenu_EndReset();
+		}			
+		// else r0 == 0, but just re-renders the menu, so ignore 
+	}
+	// ignore other keys
 }
 
 // sub_80062838
@@ -502,7 +632,7 @@ function debugSelect1KeyHandler() {
 	let classpadState = get(classpad);
 	// get key state
 	let inputs = classpadState.currentInputs;
-	console.log("debugSelect1KeyHandler", inputs);
+	// console.log("debugSelect1KeyHandler", inputs);
 	// check if any key is pressed
 	if (inputs.length > 0) {
 		// get first key
@@ -512,12 +642,12 @@ function debugSelect1KeyHandler() {
 			return;
 		}
 		let key = inputs[0].data.keyCode;
-		console.log("key", key);
+		// console.log("key", key);
 		// check if key is 1
 		if (key == "KEYCODE_1") {
 			// call Debug_TestMenu
-			// Debug_TestMenu();
-			console.log("Debug_TestMenu");
+			// console.log("Debug_TestMenu");
+			Debug_TestMenu();
 		} else if (key == "KEYCODE_2") {
 			// call Debug_FATTestMenu
 			// Debug_FATTestMenu();
@@ -526,15 +656,10 @@ function debugSelect1KeyHandler() {
 			// call Debug_DebugModeOn
 			// Debug_DebugModeOn();
 			console.log("Debug_DebugModeOn");
-		} else {
-			// wait for key
-			console.log("Waiting for key 1, 2 or 3 in DebugSelection1");
 		}
-	} else {
 		// wait for key
-		console.log("Waiting for key 1, 2 or 3 in DebugSelection1");
 	}
-
+	// wait for key
 }
 
 function AwaitKeyPress(functionCall: () => void) {
