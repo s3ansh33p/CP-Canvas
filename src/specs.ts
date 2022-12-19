@@ -23,7 +23,10 @@ export const classpad = writable({
 	},
 	debug: {
 		x: 0,
-		y: 0
+		y: 0,
+	},
+	debugMenu: {
+		isThreeBitColour : false,
 	},
 	waitingForKeypress: false,		
 	waitingForAnyInput: false,

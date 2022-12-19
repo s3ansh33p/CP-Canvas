@@ -114,6 +114,11 @@ export function rectangle(
 	h: number,
 	color: RGBColor
 ) {
+	// make sure min and max are in bounds
+	if (x < 0) x = 0;
+	if (y < 0) y = 0;
+	if (x + w > 320) w = 320 - x;
+	if (y + h > 528) h = 528 - y;
 	for (let _x = x; _x < x + w; _x += 1) {
 		for (let _y = y; _y < y + h; _y += 1) {
 			setPixel(_x, _y, color);
@@ -558,14 +563,16 @@ function Debug_TestMenu_Inner() {
 	LCD_Refresh();
 }
 
-function debugTestMenuKeyHandler() {
+// routine to get the row of item in menu
+function Routine_DebugMenu_GetRow(renderFunc, maxIndex) {
 	// get classpad state
 	let classpadState = get(classpad);
 	// get r0 - has current menu index
 	let r0 = classpadState.cpu.r0;
 	// get key pressed
 	let input = classpadState.currentInputs[0];
-	if (input.length == 0) return;
+	// default return of false
+	if (input.length == 0) return [false, 0];
 	// check event type
 	let exec = false;
 	if (input.type == "EVENT_KEY") {
@@ -573,16 +580,16 @@ function debugTestMenuKeyHandler() {
 		// console.log("debugTestMenuKeyHandler: key pressed: " + key);
 		if (key == "KEYCODE_UP") {
 			r0--;
-			if (r0 < 0) r0 = 13;
+			if (r0 < 0) r0 = maxIndex;
 			classpadState.cpu.r0 = r0;
 			classpad.set(classpadState);
-			Debug_TestMenu_Inner();
+			renderFunc();
 		} else if (key == "KEYCODE_DOWN") {
 			r0++;
-			if (r0 > 13) r0 = 0;
+			if (r0 > maxIndex) r0 = 0;
 			classpadState.cpu.r0 = r0;
 			classpad.set(classpadState);
-			Debug_TestMenu_Inner();
+			renderFunc();
 		} else if (key == "KEYCODE_EXE") {
 			// choose menu item and call function
 			// console.log("debugTestMenuKeyHandler: menu item " + r0);
@@ -595,9 +602,9 @@ function debugTestMenuKeyHandler() {
 		// divide into 24 pixel high rows.
 		// 0-23 is row 0, 24-47 is row 1, etc.
 		let row = Math.floor(touchY / 24);
-		if (row > 13) {
+		if (row > maxIndex) {
 			// ignore out of bounds
-			return;
+			return [false, 0];
 		}
 		// console.log("debugTestMenuKeyHandler: touch event: row " + row);
 		// if direction is TOUCH_UP, then execute 
@@ -610,53 +617,231 @@ function debugTestMenuKeyHandler() {
 				// set r0 to row
 				classpadState.cpu.r0 = row;
 				classpad.set(classpadState);
-				Debug_TestMenu_Inner();
+				renderFunc();
 			}
 		}
+		return [exec, row];
 	}
+}
+
+function debugTestMenuKeyHandler() {
+	let [exec, row] = Routine_DebugMenu_GetRow(Debug_TestMenu_Inner, 13);
 	if (exec) {
-		if (r0 == 1) {
+		if (row == 1) {
 			console.log("debugTestMenuKeyHandler: pattern auto check");
 			// Debug_TestMenu_PatternAutoCheck();
-		} else if (r0 == 2) {
+		} else if (row == 2) {
 			console.log("debugTestMenuKeyHandler: func auto check");
 			// Debug_TestMenu_FuncAutoCheck();
-		} else if (r0 == 3) {
+		} else if (row == 3) {
 			console.log("debugTestMenuKeyHandler: test function");
-			// Debug_TestMenu_TestFunction();
-		} else if (r0 == 4) {
+			Debug_TestMenu_TestFunction();
+		} else if (row == 4) {
 			console.log("debugTestMenuKeyHandler: version");
 			Debug_TestMenu_Version();
-		} else if (r0 == 5) {
+		} else if (row == 5) {
 			console.log("debugTestMenuKeyHandler: service");
 			Debug_TestMenu_Service();
-		} else if (r0 == 6) {
+		} else if (row == 6) {
 			console.log("debugTestMenuKeyHandler: version and sum");
 			Debug_TestMenu_VersionAndSum();
-		} else if (r0 == 7) {
+		} else if (row == 7) {
 			console.log("debugTestMenuKeyHandler: brightness");
 			// Debug_TestMenu_Brightness();
-		} else if (r0 == 8) {
+		} else if (row == 8) {
 			console.log("debugTestMenuKeyHandler: calibration");
 			// Debug_TestMenu_Calibration();
-		} else if (r0 == 9) {
+		} else if (row == 9) {
 			console.log("debugTestMenuKeyHandler: pinch check");
 			// Debug_TestMenu_PinchCheck();
-		} else if (r0 == 10) {
+		} else if (row == 10) {
 			console.log("debugTestMenuKeyHandler: off current");
 			// Debug_TestMenu_OffCurrent();
-		} else if (r0 == 11) {
+		} else if (row == 11) {
 			console.log("debugTestMenuKeyHandler: send-receive");
 			// Debug_TestMenu_SendReceive();
-		} else if (r0 == 12) {
+		} else if (row == 12) {
 			console.log("debugTestMenuKeyHandler: receive-send");
 			// Debug_TestMenu_ReceiveSend();
-		} else if (r0 == 13) {
+		} else if (row == 13) {
 			console.log("debugTestMenuKeyHandler: end(reset)");
 			// Debug_TestMenu_EndReset();
 		}			
 		// else r0 == 0, but just re-renders the menu, so ignore 
 	}
+}
+
+// Debug_TestMenu_TestFunction();
+// ROM:8008C600
+function Debug_TestMenu_TestFunction() {
+	// another menu
+	LCD_ClearScreen();
+	
+	// I'm making this bit a little more concise
+	let stringsMenu = [
+		"## LY777D MANUAL TEST MENU",
+		"1.LCD CHECK",
+		"2.TOUCH CHECK",
+		"3.KEY CHECK",
+		"4.ROM",
+		"5.RAM",
+		"6.DETECT",
+		"7.TRANS",
+		"8.CURRENT",
+		"9.OTHER",
+		"10.SD",
+		"11.CALLIBRATION",
+		"0.QUIT"
+	];
+	let menuIndex = get(classpad).cpu.r0;
+	// console.log("menuIndex", menuIndex);
+	// in reality, this is slighly more complicated but more optimized, but this is fine
+	for (let i = 0; i < stringsMenu.length; i++) {
+		let joinedString = " " + stringsMenu[i] + " ".repeat(26 - stringsMenu[i].length);
+		if (i == 0) {
+			joinedString = stringsMenu[i] + " ";
+		}
+		Debug_SetCursorPosition(0, i);
+		Debug_PrintString(joinedString, (i != menuIndex));
+	}
+
+	LCD_Refresh();
+
+	AwaitKeyPress(debugTestMenu3KeyHandler);
+}
+
+function debugTestMenu3KeyHandler() {
+	let [exec, row] = Routine_DebugMenu_GetRow(Debug_TestMenu_TestFunction, 12);
+	if (exec) {
+		// can be simplified to just array of functions in future
+		if (row == 1) {
+			console.log("debugTestMenu3KeyHandler: lcd check");
+			Debug_LCDMenu();
+		} else if (row == 2) {
+			console.log("debugTestMenu3KeyHandler: touch check");
+			// Debug_TestMenu_3_TouchCheck();
+		} else if (row == 3) {
+			console.log("debugTestMenu3KeyHandler: key check");
+			// Debug_TestMenu_3_KeyCheck();
+		} else if (row == 4) {
+			console.log("debugTestMenu3KeyHandler: rom");
+			// Debug_TestMenu_3_ROM();
+		} else if (row == 5) {
+			console.log("debugTestMenu3KeyHandler: ram");
+			// Debug_TestMenu_3_RAM();
+		} else if (row == 6) {
+			console.log("debugTestMenu3KeyHandler: detect");
+			// Debug_TestMenu_3_Detect();
+		} else if (row == 7) {
+			console.log("debugTestMenu3KeyHandler: trans");
+			// Debug_TestMenu_3_Trans();
+		} else if (row == 8) {
+			console.log("debugTestMenu3KeyHandler: current");
+			// Debug_TestMenu_3_Current();
+		} else if (row == 9) {
+			console.log("debugTestMenu3KeyHandler: other");
+			// Debug_TestMenu_3_Other();
+		} else if (row == 10) {
+			console.log("debugTestMenu3KeyHandler: sd");
+			// Debug_TestMenu_3_SD();
+		} else if (row == 11) {
+			console.log("debugTestMenu3KeyHandler: calibration");
+			// Debug_TestMenu_3_Calibration();
+		} else if (row == 12) {
+			// QUIT
+			// set key handler to parent menu
+			AwaitKeyPress(debugTestMenuKeyHandler);
+			// redraw parent menu
+			Debug_TestMenu_Inner();
+		}
+	}
+}
+
+// ================ LCD MENU ================
+// Debug_LCDMenu();
+// ROM:8008D154
+
+// even these functions can be simplified in the future, though classpad does the individual functions for each menu
+function Debug_LCDMenu() {
+	LCD_ClearScreen();
+
+	// classpad actually has a second function that draws the Color mode, but we can join the LCD TEST string and that together for simplicity
+	let topString = "[LCD TEST]           ";
+	// assume colour mode for now
+	// get the colour mode from the classpad
+	let colourMode = get(classpad).debugMenu.isThreeBitColour;
+	topString += colourMode ? "C:3  " : "C:16 ";
+
+	// I'm making this bit a little more concise
+	let stringsMenu = [
+		topString,
+		"1.LCD COLOR SET",
+		"2.LCD CHECK",
+		"3.SETTING MENU",
+		"4.OPH LCD CHECK",
+		"5.LIGHT TEST",
+		"6.TFT AUTO",
+		"0.QUIT"
+	];
+	let menuIndex = get(classpad).cpu.r0;
+	// console.log("menuIndex", menuIndex);
+	// in reality, this is slighly more complicated but more optimized, but this is fine
+	for (let i = 0; i < stringsMenu.length; i++) {
+		let joinedString = " " + stringsMenu[i] + " ".repeat(26 - stringsMenu[i].length);
+		if (i == 0) {
+			joinedString = stringsMenu[i] + " ";
+		}
+		Debug_SetCursorPosition(0, i);
+		Debug_PrintString(joinedString, (i != menuIndex));
+	}
+
+	LCD_Refresh();
+
+	AwaitKeyPress(debugLCDKeyHandler);
+}
+
+function debugLCDKeyHandler() {
+	let [exec, row] = Routine_DebugMenu_GetRow(Debug_LCDMenu, 7);
+	if (exec) {
+		// can be simplified to just array of functions in future
+		if (row == 1) {
+			console.log("debugLCDKeyHandler: lcd color set");
+			Debug_LCDMenu_LCDColorSet();
+		} else if (row == 2) {
+			console.log("debugLCDKeyHandler: lcd check");
+			// Debug_LCDMenu_LCDCheck();
+		} else if (row == 3) {
+			console.log("debugLCDKeyHandler: setting menu");
+			// Debug_LCDMenu_SettingMenu();
+		} else if (row == 4) {
+			console.log("debugLCDKeyHandler: oph lcd check");
+			// Debug_LCDMenu_OPHLCDCheck();
+		} else if (row == 5) {
+			console.log("debugLCDKeyHandler: light test");
+			// Debug_LCDMenu_LightTest();
+		} else if (row == 6) {
+			console.log("debugLCDKeyHandler: tft auto");
+			// Debug_LCDMenu_TFTAuto();
+		} else if (row == 7) {
+			// QUIT
+			// set key handler to parent menu
+			AwaitKeyPress(debugTestMenu3KeyHandler);
+			// redraw parent menu
+			Debug_TestMenu_TestFunction();
+		}
+	}
+}
+
+// ROM:8008D276
+function Debug_LCDMenu_LCDColorSet() {
+	// get current colour mode
+	let colourMode = get(classpad).debugMenu.isThreeBitColour;
+	// toggle colour mode
+	colourMode = !colourMode;
+	// set colour mode
+	get(classpad).debugMenu.isThreeBitColour = colourMode;
+	// redraw menu
+	Debug_LCDMenu();
 }
 
 // mini routine for version info
