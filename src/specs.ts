@@ -21,17 +21,24 @@ export const classpad = writable({
 		r12: 0, r13: 0, r14: 0, r15: 0,
 		gbr: 0, pr: 0, ach: 0, acl: 0
 	},
-	// vram is a 320x528 array of 16-bit colors
-	vram: new Uint16Array(320 * 528),
 	debug: {
 		x: 0,
-		y: 0
+		y: 0,
+	},
+	debugMenu: {
+		isThreeBitColour : false,
 	},
 	waitingForKeypress: false,		
 	waitingForAnyInput: false,
 	currentInputs: [], // array of InputEvents,
 	inputCallback: null // String of the callback function
 });
+
+// VRAM Dedicated Store
+// vram is a 320x528 array of 16-bit colors
+export const vram = writable(new Uint16Array(320 * 528));
+// VRAM Backup Store
+export const vramBackup = writable(new Uint16Array(320 * 528));
 
 // A more convenient store for grabbing all game props
 export const props = deriveObject({
