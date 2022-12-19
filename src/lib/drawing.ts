@@ -467,7 +467,7 @@ export function exampleDisplay() {
 
 // some constants
 const OS_Date = "2017/05/12 15:15";
-const ABS_Date = "2017/05/12 15:15";
+const ABS_Date = "2012/09/04 15:11";
 const ROM_Ver = "02.01.2000.0000";
 const Service_ID = "DEV12345"; // 8 chars, can be have upper/lower case or numbers
 
