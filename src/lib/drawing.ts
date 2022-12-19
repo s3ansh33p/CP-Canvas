@@ -6,6 +6,7 @@ import {
 	canvas as canvasStore,
 	context as contextStore,
 	classpad,
+	vram,
 } from "../specs";
 
 /**
@@ -39,7 +40,7 @@ export function LCD_Refresh() {
 	// start a timer
 	let timeStart = performance.now();
 	// get VRAM
-	const VRAM = get(classpad).vram;
+	const VRAM = get(vram);
 	// get canvas
 	let ctx = get(contextStore);
 	// convert vram to imageData
@@ -56,7 +57,7 @@ export function LCD_Refresh() {
 	ctx.putImageData(imageData, 0, 0);
 	// end timer
 	let timeEnd = performance.now();
-	console.log("LCD_Refresh took", timeEnd - timeStart, "ms");
+	console.log("LCD_Refresh took", (timeEnd - timeStart).toFixed(2), "ms");
 }
 
 export function Debug_SetCursorPosition(
@@ -280,7 +281,7 @@ export function setPixel(
 	color: RGBColor
 ) {
 	// get vram
-	const VRAM = get(classpad).vram;
+	const VRAM = get(vram);
 	// vram is a 320x528 array of 3 bytes
 	let i = (x + y * 320);
 	VRAM[i] = INT_RGB888TO565(color[0], color[1], color[2]);
@@ -288,7 +289,7 @@ export function setPixel(
 
 export function LCD_ClearScreen() {
 	// get vram
-	const VRAM = get(classpad).vram;
+	const VRAM = get(vram);
 	// vram is a 320x528 array of 16bit colors
 	for (let i = 0; i < 320 * 528; i++) {
 		// set to white
@@ -464,6 +465,12 @@ export function exampleDisplay() {
 	LCD_Refresh();
 }
 
+// some constants
+const OS_Date = "2017/05/12 15:15";
+const ABS_Date = "2017/05/12 15:15";
+const ROM_Ver = "02.01.2000.0000";
+const Service_ID = "DEV12345"; // 8 chars, can be have upper/lower case or numbers
+
 // 80062F78
 export function Debug_SelectMode1() {
 	LCD_ClearScreen();
@@ -480,18 +487,18 @@ export function Debug_SelectMode1() {
 	Debug_PrintString("OS_Date ", true);
 	Debug_SetCursorPosition(3, 9);
 	// gets OS date - simulated here
-	Debug_PrintString("2017/05/12 15:15", true);
+	Debug_PrintString(OS_Date, true);
 
 	Debug_SetCursorPosition(1, 10);
 	Debug_PrintString("ABS_Date ", true);
 	// gets ABS date - simulated here
 	Debug_SetCursorPosition(3, 11);
-	Debug_PrintString("2012/09/04 15:11", true);
+	Debug_PrintString(ABS_Date, true);
 
 	Debug_SetCursorPosition(1, 12);
 	Debug_PrintString("ROM_Ver ", true);
 	// gets ROM version - simulated here
-	Debug_PrintString("02.01.2000.0000", true);
+	Debug_PrintString(ROM_Ver, true);
 	
 	LCD_Refresh();
 	// set classpad state
@@ -508,7 +515,7 @@ function Debug_TestMenu() {
 	// skipping some stuff, but just shows ROM version
 	Debug_SetCursorPosition(2, 0x11); // 17
 	Debug_PrintString("ROM_Ver ", true);
-	Debug_PrintString("02.01.2000.0000", true);
+	Debug_PrintString(ROM_Ver, true);
 	
 	Debug_SetCursorPosition(2, 0xF);
 	// Debug_PrintString("CALIBRATION  XX", true);
@@ -619,13 +626,13 @@ function debugTestMenuKeyHandler() {
 			// Debug_TestMenu_TestFunction();
 		} else if (r0 == 4) {
 			console.log("debugTestMenuKeyHandler: version");
-			// Debug_TestMenu_Version();
+			Debug_TestMenu_Version();
 		} else if (r0 == 5) {
 			console.log("debugTestMenuKeyHandler: service");
-			// Debug_TestMenu_Service();
+			Debug_TestMenu_Service();
 		} else if (r0 == 6) {
 			console.log("debugTestMenuKeyHandler: version and sum");
-			// Debug_TestMenu_VersionAndSum();
+			Debug_TestMenu_VersionAndSum();
 		} else if (r0 == 7) {
 			console.log("debugTestMenuKeyHandler: brightness");
 			// Debug_TestMenu_Brightness();
@@ -649,6 +656,139 @@ function debugTestMenuKeyHandler() {
 			// Debug_TestMenu_EndReset();
 		}			
 		// else r0 == 0, but just re-renders the menu, so ignore 
+	}
+}
+
+// mini routine for version info
+function Routine_DisplayVersionInfo() {
+	Debug_SetCursorPosition(2, 1);
+	Debug_PrintString("OS_Date ", true);
+	Debug_SetCursorPosition(4, 2);
+	// gets OS date - simulated here
+	Debug_PrintString(OS_Date, true);
+
+	Debug_SetCursorPosition(2, 3);
+	Debug_PrintString("ABS_Date ", true);
+	// gets ABS date - simulated here
+	Debug_SetCursorPosition(4, 4);
+	Debug_PrintString(ABS_Date, true);
+
+	Debug_SetCursorPosition(2, 5);
+	Debug_PrintString("ROM_Ver ", true);
+	// gets ROM version - simulated here
+	Debug_PrintString(ROM_Ver, true);
+}
+
+// Debug_TestMenu_Version();
+// ROM:8008C8A0
+function Debug_TestMenu_Version() {
+	LCD_ClearScreen();
+
+	Debug_SetCursorPosition(0, 0);
+	Debug_PrintString("=====<< Version >>=====", true);
+
+	Routine_DisplayVersionInfo();
+
+	// exe quit text
+	Debug_SetCursorPosition(7, 10);
+	Debug_PrintString("[EXE] : QUIT", true);
+	LCD_Refresh();
+	// set callback
+	AwaitKeyPress(Debug_TestMenu_EXEQuit);
+}
+
+// Debug_TestMenu_Service();
+// ROM:8008C822
+function Debug_TestMenu_Service() {
+	LCD_ClearScreen();
+
+	Debug_SetCursorPosition(0, 0);
+	Debug_PrintString("=====<< Service >>=====", true);
+
+	// create fake device ID
+	Debug_SetCursorPosition(1,2);
+	Debug_PrintString("ID=" + Service_ID, true);
+
+	// exe quit text
+	Debug_SetCursorPosition(7, 10);
+	Debug_PrintString("[EXE] : QUIT", true);
+	LCD_Refresh();
+	// set callback
+	AwaitKeyPress(Debug_TestMenu_EXEQuit);
+}
+
+// Debug_TestMenu_VersionAndSum();
+// ROM:8008C8DA
+function Debug_TestMenu_VersionAndSum() {
+	LCD_ClearScreen();
+
+	Debug_SetCursorPosition(0, 0);
+	Debug_PrintString("=====<< Version >>=====", true);
+
+	Routine_DisplayVersionInfo();
+
+	// Fake OS/ABS/USER checksum
+	Debug_SetCursorPosition(1, 7);
+	Debug_PrintString("OS    SUM  15DA NG!", true);
+	Debug_SetCursorPosition(1, 8);
+	Debug_PrintString("ABS   SUM  D141 OK!", true);
+	Debug_SetCursorPosition(1, 9);
+	Debug_PrintString("USER  SUM  4956  --", true);
+
+
+	// exe quit text
+	Debug_SetCursorPosition(7, 15);
+	Debug_PrintString("[EXE] : QUIT", true);
+	LCD_Refresh();
+	// set callback
+	AwaitKeyPress(Debug_TestMenu_EXEQuit);
+}
+
+// Debug_TestMenu_Brightness();
+// ROM:8008E934
+function Debug_TestMenu_Brightness() {}
+
+// Debug_TestMenu_Calibration();
+// unk_80093124
+// h'AE
+// h'56
+//    0
+//    9
+// when combined AE560009
+// ROM:80092DD4
+function Debug_TestMenu_Calibration() {}
+
+// Debug_TestMenu_PinchCheck();
+// ROM:80092780
+function Debug_TestMenu_PinchCheck() {}
+
+// Debug_TestMenu_OffCurrent();
+// ROM:8008CB7C
+function Debug_TestMenu_OffCurrent() {}
+
+// Debug_TestMenu_SendReceive();
+// loc_8008CE52
+function Debug_TestMenu_SendReceive() {}
+
+// Debug_TestMenu_ReceiveSend();
+// loc_8008CE76
+function Debug_TestMenu_ReceiveSend() {}
+
+// call bcak for EXEQuit
+function Debug_TestMenu_EXEQuit() {
+	// get classpad state
+	let classpadState = get(classpad);
+	// get r0 - has current menu index
+	let r0 = classpadState.cpu.r0;
+	// get key pressed
+	let input = classpadState.currentInputs[0];
+	if (input.length == 0) return;
+	// check event type
+	if (input.type == "EVENT_KEY") {
+		let key = input.data.keyCode;
+		if (key == "KEYCODE_EXE") {
+			Debug_TestMenu(); // go back to menu
+		}
 	}
 }
 

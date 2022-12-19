@@ -72,7 +72,6 @@ export function keyEventHandler(key) {
  * @param type touch type
  */
 export function handleTouch(x, y, type) {
-	let canvas = get(canvasStore);
 	let ctx = get(contextStore);
 
 	// round to nearest pixel
@@ -85,7 +84,7 @@ export function handleTouch(x, y, type) {
 	ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
 	ctx.fillRect(x, y, 2, 2);
 
-	console.log("Touch event: (" + x + "," + y + ")");
+	// console.log("Touch event: (" + x + "," + y + ")");
 
 	let touchDirection = "TOUCH_DOWN";
 	if (type == "up") {
