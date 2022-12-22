@@ -616,12 +616,14 @@ function Routine_DebugMenu_GetRow(renderFunc, maxIndex) {
 			if (row != r0) {
 				// set r0 to row
 				classpadState.cpu.r0 = row;
+				// set r0 variable to row
+				r0 = row;
 				classpad.set(classpadState);
 				renderFunc();
 			}
 		}
-		return [exec, row];
 	}
+	return [exec, r0];
 }
 
 function debugTestMenuKeyHandler() {
