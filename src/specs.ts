@@ -2,8 +2,11 @@ import { getContext, onMount, onDestroy } from "svelte";
 import { writable, derived, readable } from "svelte/store";
 
 // TODO: the classpad is responsive, change it to writable
-export const width = readable(320);
-export const height = readable(528);
+export const WIDTH = 320
+export const HEIGHT = 528
+
+export const width = readable(WIDTH);
+export const height = readable(HEIGHT);
 export const zoomFactor = readable(1.5);
 
 export const pixelRatio = writable(window.devicePixelRatio);
@@ -36,9 +39,9 @@ export const classpad = writable({
 
 // VRAM Dedicated Store
 // vram is a 320x528 array of 16-bit colors
-export const vram = writable(new Uint16Array(320 * 528));
+export const vram = writable(new Uint16Array(WIDTH * HEIGHT));
 // VRAM Backup Store
-export const vramBackup = writable(new Uint16Array(320 * 528));
+export const vramBackup = writable(new Uint16Array(WIDTH * HEIGHT));
 
 // A more convenient store for grabbing all game props
 export const props = deriveObject({

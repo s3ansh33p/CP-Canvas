@@ -7,6 +7,8 @@ import {
 	context as contextStore,
 	classpad,
 	vram,
+	WIDTH,
+	HEIGHT,
 } from "../specs";
 
 /**
@@ -44,7 +46,7 @@ export function LCD_Refresh() {
 	// get canvas
 	let ctx = get(contextStore);
 	// convert vram to imageData
-	let imageData = ctx.createImageData(320, 528);
+	let imageData = ctx.createImageData(WIDTH, HEIGHT);
 	let data = imageData.data;
 	for (let i = 0; i < VRAM.length; i++) {
 		let color = INT_RGB565TO888(VRAM[i]);
@@ -117,8 +119,8 @@ export function rectangle(
 	// make sure min and max are in bounds
 	if (x < 0) x = 0;
 	if (y < 0) y = 0;
-	if (x + w > 320) w = 320 - x;
-	if (y + h > 528) h = 528 - y;
+	if (x + w > WIDTH) w = WIDTH - x;
+	if (y + h > HEIGHT) h = HEIGHT - y;
 	for (let _x = x; _x < x + w; _x += 1) {
 		for (let _y = y; _y < y + h; _y += 1) {
 			setPixel(_x, _y, color);
@@ -269,8 +271,8 @@ export function triangle(
 }
 
 export function fillScreen(color: RGBColor) {
-	for (let i = 0; i < 320 * 528; i++) {
-		setPixel(i % 320, Math.floor(i / 320), color);
+	for (let i = 0; i < WIDTH * HEIGHT; i++) {
+		setPixel(i % WIDTH, Math.floor(i / WIDTH), color);
 	}
 }
 
@@ -288,7 +290,7 @@ export function setPixel(
 	// get vram
 	const VRAM = get(vram);
 	// vram is a 320x528 array of 3 bytes
-	let i = (x + y * 320);
+	let i = (x + y * WIDTH);
 	VRAM[i] = INT_RGB888TO565(color[0], color[1], color[2]);
 }
 
@@ -296,7 +298,7 @@ export function LCD_ClearScreen() {
 	// get vram
 	const VRAM = get(vram);
 	// vram is a 320x528 array of 16bit colors
-	for (let i = 0; i < 320 * 528; i++) {
+	for (let i = 0; i < WIDTH * HEIGHT; i++) {
 		// set to white
 		VRAM[i] = 0xFFFF;
 	}
@@ -433,7 +435,7 @@ export function drawAllDebug() {
  * Color function for easier copy/paste from c code
  * Returns RGB888 color
  */
-function color(
+export function color(
 	r: number,
 	g: number,
 	b: number
