@@ -21,4 +21,8 @@ export class CPWindow extends PegWindow {
     static GetMainFrame(): CPMainFrame {
         return null // TODO
     }
+
+    Draw() {
+        console.log("CPWindow::Draw")
+    }
 }

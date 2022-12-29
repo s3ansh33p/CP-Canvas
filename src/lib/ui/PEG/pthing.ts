@@ -10,7 +10,7 @@ import type { PegScreen, Viewport } from "./pscreen";
 /**
  * Base class for all PEG objects
  */
-export class PegThing {
+export abstract class PegThing {
     // friend class PegScreen;
 
     muColors: [COLORVAL,COLORVAL,COLORVAL,COLORVAL] = [0,0,0,0];
@@ -82,7 +82,7 @@ export class PegThing {
         return 0; // TODO
     }
 
-    Draw() {}
+    abstract Draw();
 
     Add(what: PegThing, bDraw: boolean = true) {
         let msg: PegMessage

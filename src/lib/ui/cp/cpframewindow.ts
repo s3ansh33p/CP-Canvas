@@ -16,6 +16,10 @@ export class CPFrameWindow extends PegThing {
         }
     }
 
+    Draw() {
+        console.log("todo: CPFrameWindow::Draw")
+    }
+
     DrawFrame(bFill: BOOL = true) {
         console.log("todo: CPFrameWindow::DrawFrame")
     }

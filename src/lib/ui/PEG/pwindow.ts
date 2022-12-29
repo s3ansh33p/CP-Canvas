@@ -175,4 +175,8 @@ export class PegWindow extends PegThing {
             this.Line(this.mClient.wLeft - 1, this.mClient.wTop, this.mClient.wLeft - 1, this.mReal.wBottom - PEG_FRAME_WIDTH + 1, color);
         }
     }
+
+    Draw() {
+        console.log("PegWindow::Draw")
+    }
 }

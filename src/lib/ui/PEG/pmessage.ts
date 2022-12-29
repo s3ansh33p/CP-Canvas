@@ -1,6 +1,7 @@
 import type { DWORD, LONG, UCHAR, WORD } from "../native/windows";
+import { NUM_PEG_FREE_MSGS } from "./peg";
 import type { PegPoint, PegRect, SIGNED } from "./pegtypes";
-import type { PegThing } from "./pthing";
+import { PegThing } from "./pthing";
 
 // Standard PEG generated message types
 export enum PegSystemMessage {
@@ -68,13 +69,21 @@ export class PegMessage {
     uUserData: [UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR]
 
     constructor (
-        pTo?: PegThing,
+        p1?: WORD | PegThing,
         wVal?: WORD
     ) {
+        if (p1 instanceof PegThing) {
+            this.pTarget = p1
+            this.wType = wVal || 0
+        } else if (p1) {
+            this.pTarget = null
+            this.wType = (p1 as number) || 0
+        } else {
+            this.pTarget = null
+        }
+
         this.next = null
-        this.pTarget = pTo
         this.pSource = null
-        this.wType = wVal
     }
 }
 
@@ -107,15 +116,81 @@ export class PegMessageQueue {
     private mpFreeEnd: PegMessage
     private mpTimerList: PegTimer
 
-    constructor() {
+    lTargMesg: number = 0
 
+    constructor() {
+        this.mpFirst = null
+        this.mpLast = null
+        this.mpFree = new PegMessage()
+        let current: PegMessage = this.mpFree
+
+        for (let wLoop = 0; wLoop < NUM_PEG_FREE_MSGS; wLoop++) {
+            current.next = new PegMessage()
+            current = current.next
+        }
+
+        this.mpFree = current
+        this.mpTimerList = null
     }
 
     Push(inMsg: PegMessage) {
+        console.log(`PegMessageQueue::Push : `, inMsg)
+
+        if (inMsg.pTarget) {
+            this.lTargMesg++
+        }
+
+        if (this.mpFree) {
+            let current: PegMessage = this.mpFree
+            this.mpFree = this.mpFree.next
+
+            if (!this.mpFree) {
+                this.mpFreeEnd = null
+            }
+            current = inMsg
+            current.next = null
+
+            if (this.mpLast) {
+                this.mpLast.next = current
+            } else {
+                this.mpFirst = current
+            }
+            this.mpLast = current
+        } else {
+            console.warn("\n\n ****** PegMessageQueue::Push dropped a message (", inMsg, ")******\n\n\n")
+        }
+
         // inMsg
     }
 
-    Pop(inMsg: PegMessage) {}
+    Pop(put: PegMessage) {
+        while(true) {
+            if (this.mpFirst) {
+                put = this.mpFirst
+                put.next = null
+
+                if (this.mpFreeEnd) {
+                    this.mpFreeEnd.next = this.mpFirst
+                } else {
+                    this.mpFree = this.mpFirst
+                }
+
+                this.mpFreeEnd = this.mpFirst
+                this.mpFirst = this.mpFirst.next
+                this.mpFreeEnd.next = null
+
+                if (!this.mpFirst) {
+                    this.mpLast = null
+                }
+                return
+            } else {
+                console.log("TODO: IDLE")
+                debugger
+                // PegIdleFunction()
+            }
+        }
+    }
+
     Fold(inMsg: PegMessage) {}
     Purge(inMsg: PegThing) {}
     SetTimer(who: PegThing, wId: WORD, lCount: LONG, lReset: LONG) {}

@@ -39,9 +39,13 @@ export class CPMainFrame extends PegDecoratedWindow {
     SetTopWindow(w: CPModuleWindow, draw: BOOL = true) {
 
     }
-    
+
     SetBottomWindow(w: CPModuleWindow, draw: BOOL = true) {
         
+    }
+
+    Draw() {
+        console.log("CPMainFrame::Draw")
     }
 
 }

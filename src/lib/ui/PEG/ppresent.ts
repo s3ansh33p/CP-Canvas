@@ -24,4 +24,8 @@ export class PegPresentationManager extends PegWindow {
         this.mpScratchPad = null
         this.RemoveStatus(0xffff)
     }
+
+    Draw() {
+        console.log("PegPresentationManager::Draw")
+    }
 }

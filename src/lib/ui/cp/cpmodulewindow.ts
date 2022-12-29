@@ -18,4 +18,8 @@ export class CPModuleWindow extends CPWindow {
         super()
     }
 
+    Draw() {
+        console.log("CPModuleWindow::Draw")
+    }
+
 }

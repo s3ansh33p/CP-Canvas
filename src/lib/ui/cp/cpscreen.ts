@@ -1,4 +1,5 @@
 import { WIDTH, HEIGHT} from '../../../specs'
+import { setPixel } from '../../drawing'
 import type { PegBitmap, PegColor, PegRect, PegPoint } from '../PEG/pegtypes'
 import type { PegFont } from '../PEG/pfonts'
 import { PegScreen } from '../PEG/pscreen'
@@ -10,9 +11,6 @@ export const ROTSCRATCH_SIZE = 10240
 
 export class CPCanvasScreen extends PegScreen {
     GetPixel(caller: PegThing, x: number, y: number): number {
-        throw new Error('Method not implemented.')
-    }
-    PutPixel(caller: PegThing, x: number, y: number, color: number) {
         throw new Error('Method not implemented.')
     }
     CreateBitmap(wWidth: number, wHeight: number): PegBitmap {
@@ -48,15 +46,17 @@ export class CPCanvasScreen extends PegScreen {
     TextWidth(text: number[], font: PegFont, iLen: number): number {
         throw new Error('Method not implemented.')
     }
-    Invalidate(rect?: PegRect) {
-        throw new Error('Method not implemented.')
-    }
     Circle(xCenter: number, yCenter: number, radius: number, color: PegColor, iWidth: number) {
         throw new Error('Method not implemented.')
     }
+
     constructor(
         rect: PegRect
     ) {
         super()
+    }
+
+    PlotPointView(x: number, y: number, color: number) {
+        setPixel(x, y, [color&0xff0000, color&0xff00, color&0xff])
     }
 }

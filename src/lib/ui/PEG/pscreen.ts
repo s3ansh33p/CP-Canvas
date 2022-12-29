@@ -1,6 +1,6 @@
 import { charmap } from "../../../common/font";
 import type { BOOL, DWORD, UCHAR, WORD } from "../native/windows";
-import { PegRect, PSF_VIEWPORT, type COLORVAL, type PegBitmap, type PegColor, type PegPoint, type SIGNED, type TCHAR } from "./pegtypes";
+import { PegRect, PSF_VIEWPORT, PSF_VISIBLE, type COLORVAL, type PegBitmap, type PegColor, type PegPoint, type SIGNED, type TCHAR } from "./pegtypes";
 import type { PegFont } from "./pfonts";
 import { PegThing } from "./pthing";
 
@@ -94,7 +94,24 @@ export abstract class PegScreen {
     MemoryToScreen() {}
 
     abstract GetPixel(caller: PegThing, x: SIGNED, y: SIGNED) : COLORVAL;
-    abstract PutPixel(caller: PegThing, x: SIGNED, y: SIGNED, color: COLORVAL);
+    
+    abstract PlotPointView(x: SIGNED, y: SIGNED, color: COLORVAL);
+
+    PutPixel(caller: PegThing, x: SIGNED, y: SIGNED, color: COLORVAL) {
+        if(!caller.StatusIs(PSF_VISIBLE)) return
+        if (!caller.mClip.Contains(x, y)) return
+
+        // #ifdef PEG_FULL_CLIPPING
+        if (this.mbVirtualDraw) {
+            this.PlotPointView(x, y, color);
+            return
+        }
+        
+        // #else
+        this.PlotPointView(x, y, color);
+
+    }
+    
     NumColors(): DWORD {
         return this.mdNumColors
     }
@@ -115,7 +132,16 @@ export abstract class PegScreen {
     abstract TextHeight(text: TCHAR[], font: PegFont): SIGNED;
     abstract TextWidth(text: TCHAR[], font: PegFont, iLen: SIGNED): SIGNED;
 
-    abstract Invalidate(rect?: PegRect);
+    Invalidate(rect?: PegRect) {
+        if (this.miInvalidCount) {
+            this.mInvalid = this.mInvalid.or(rect)
+        } else {
+            this.mInvalid = rect
+        }
+        this.miInvalidCount++
+
+    }
+
     abstract Circle(xCenter: SIGNED, yCenter: SIGNED, radius: SIGNED, color: PegColor, iWidth: SIGNED);
 
     InvalidOverlap(rect: PegRect): BOOL {

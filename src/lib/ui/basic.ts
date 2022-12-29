@@ -4,7 +4,7 @@ import { CPModuleWindow } from "./cp/cpmodulewindow";
 import { CPCanvasScreen } from "./cp/cpscreen";
 import { MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM } from "./cp/windowsize";
 import { BLACK, PegColor, PegPoint, PegRect } from "./PEG/pegtypes";
-import { PegMessageQueue } from "./PEG/pmessage";
+import { PegMessage, PegMessageQueue, PegSystemMessage } from "./PEG/pmessage";
 import { PegPresentationManager } from "./PEG/ppresent";
 import type { PegScreen } from "./PEG/pscreen";
 import { PegThing } from "./PEG/pthing";
@@ -53,17 +53,7 @@ function PegAppInitialize(pPresentation: PegPresentationManager) {
     let childRect: PegRect = mw.FullAppRectangle();
     let swin: ScribbleWindow = new ScribbleWindow(childRect,mw);
     mw.SetTopWindow(swin);
-
-    /*
-    
-	
-	
-
-	// Need to set a main window for this module.  In our case, it is the scribble window
-	mw.SetMainWindow(swin);
-
-	pPresentation.Add(mw);
-    */
+    pPresentation.Add(mw);
 
 	// Debug_Printf(10, 1, false, "Test" + rect.wTop+":"+rect.wLeft+":"+rect.wBottom+":"+rect.wRight);
 
@@ -74,10 +64,11 @@ function PegAppInitialize(pPresentation: PegPresentationManager) {
 
 // test some fake main ?
 export function WinMain() {
+    console.log("Initializing PEG")
     let szAppName = "Peg Application"
 
     // create the screen interface object
-    let rect: PegRect = PegRect.Set(0,0, 600, 800)
+    let rect: PegRect = PegRect.Set(MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM)
 
     let pScreen: PegScreen = new CPCanvasScreen(rect)
     PegThing.SetScreenPtr(pScreen)
@@ -95,4 +86,16 @@ export function WinMain() {
 
 
     PegAppInitialize(pPresentation)
+
+    pScreen.Invalidate(pPresentation.mReal)
+    let newMessage: PegMessage = new PegMessage(PegSystemMessage.PM_DRAW)
+    newMessage.pTarget = pPresentation
+    pMsgQueue.Push(newMessage)
+
+    /*
+        console.log("Initializing Keyboard")
+        let pK: CKeyboard = CKeyboard.GetInstance()
+        pK.LockKeyboard()
+        pK.SetKeymap(key_map)
+    */
 }
