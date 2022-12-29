@@ -29,7 +29,9 @@ class ScribbleWindow extends CPModuleWindow {
     }
 
     Draw(): void {
-        debugger
+        console.log("ScribbleWindow::Draw")
+        debugger 
+
         this.BeginDraw()
         this.DrawFrame()
         let pp: PegPoint = new PegPoint(10,10)
@@ -38,21 +40,18 @@ class ScribbleWindow extends CPModuleWindow {
         this.EndDraw()
     }
 }
-
+s
 function PegAppInitialize(pPresentation: PegPresentationManager) {
 	fillScreen(color(64,64,64));
-
-    // TODO: find where it comes from ?
-    // pPresentation PegPresentationManager = ???
 	
     const rect: PegRect = PegRect.Set(MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM);
 
-    
     const mw: CPMainFrame = new ScribbleFrame(rect)
 
-    let childRect: PegRect = mw.FullAppRectangle();
+    let childRect: PegRect = mw.FullAppRectangle(); // classpaddllgcc_1791 => 0x 00E3 009E 0021 0001 => [227, 158, 33, 1]
     let swin: ScribbleWindow = new ScribbleWindow(childRect,mw);
-    mw.SetTopWindow(swin);
+    mw.SetTopWindow(swin); // classpaddllgcc_1762
+    mw.SetMainWindow(swin);
     pPresentation.Add(mw);
 
 	// Debug_Printf(10, 1, false, "Test" + rect.wTop+":"+rect.wLeft+":"+rect.wBottom+":"+rect.wRight);
@@ -66,6 +65,13 @@ function PegAppInitialize(pPresentation: PegPresentationManager) {
 export function WinMain() {
     console.log("Initializing PEG")
     let szAppName = "Peg Application"
+
+
+    /*
+        SetPegAppInitializeCALLBACK(PegAppInitialize);
+        SetExtensionGetLangCALLBACK(ExtensionGetLang);
+        return CPMain(hInstance, hPrevInstance, nShowCmd);
+    */
 
     // create the screen interface object
     let rect: PegRect = PegRect.Set(MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM)

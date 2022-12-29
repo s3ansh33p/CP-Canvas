@@ -51,8 +51,6 @@ export abstract class PegThing {
 
         this.mpViewportList = null
 
-        debugger
-
         if (p1 instanceof PegRect) {
             const rect: PegRect = p1
             this.mReal = rect
