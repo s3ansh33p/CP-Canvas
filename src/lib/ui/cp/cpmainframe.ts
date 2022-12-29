@@ -1,3 +1,4 @@
+import type { BOOL } from "../native/windows";
 import { PegDecoratedWindow } from "../PEG/pdecwin";
 import { PegRect } from "../PEG/pegtypes";
 import type { CPModuleWindow, PCPModuleWindow } from "./cpmodulewindow";
@@ -16,23 +17,31 @@ export class CPMainFrame extends PegDecoratedWindow {
         // TODO: reverse this part 
     }
 
-    static TopAppRectangle(): PegRect {
+    TopAppRectangle(): PegRect {
         //   *a1 = off_698D41CC;
         // return ClassPadDLLgcc_1644(a1);
-        return PegRect.Set(0,0,0,0)
+        return PegRect.Set(0,0,0,0) // TODO
     }
 
-	static BottomAppRectangle(): PegRect {
-        return PegRect.Set(0,0,0,0)
+	BottomAppRectangle(): PegRect {
+        return PegRect.Set(0,0,0,0) // TODO
     }
 
-	static FullAppRectangle(): PegRect {
+	FullAppRectangle(): PegRect {
         return PegRect.Set(0,0,PEG_VIRTUAL_XSIZE,PEG_VIRTUAL_YSIZE) // TODO: unsure 
     }
 
 
     SetMainWindow(w: CPModuleWindow) {
         this.m_main_window = w
+    }
+
+    SetTopWindow(w: CPModuleWindow, draw: BOOL = true) {
+
+    }
+    
+    SetBottomWindow(w: CPModuleWindow, draw: BOOL = true) {
+        
     }
 
 }

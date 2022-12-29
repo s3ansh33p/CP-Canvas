@@ -1,7 +1,8 @@
 import { Debug_Printf, Debug_PrintString, Debug_SetCursorPosition, fillScreen, LCD_Refresh, line, setPixel, triangle, color } from "../drawing";
 import { CPMainFrame } from "./cp/cpmainframe";
+import { CPModuleWindow } from "./cp/cpmodulewindow";
 import { MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM } from "./cp/windowsize";
-import { PegRect } from "./PEG/pegtypes";
+import { BLACK, PegColor, PegPoint, PegRect } from "./PEG/pegtypes";
 
 
 class ScribbleFrame extends CPMainFrame {
@@ -11,6 +12,25 @@ class ScribbleFrame extends CPMainFrame {
         super(rect)
     }
 
+}
+
+class ScribbleWindow extends CPModuleWindow {
+
+    constructor(
+        rect: PegRect,
+        frame: CPMainFrame
+    ) {
+        super(rect, null, 0, frame)
+    }
+
+    Draw(): void {
+        this.BeginDraw()
+        // this.DrawFrame()
+        let pp: PegPoint = new PegPoint(10,10)
+        let col = BLACK
+        // DrawTextR(pp, "Hello World",col, PegTextThing.GetBasicFont())
+        this.EndDraw()
+    }
 }
 
 export function drawGUI() {
@@ -24,10 +44,14 @@ export function drawGUI() {
     
     const mw: CPMainFrame = new ScribbleFrame(rect)
 
+    let childRect: PegRect = mw.FullAppRectangle();
+    let swin: ScribbleWindow = new ScribbleWindow(childRect,mw);
+    mw.SetTopWindow(swin);
+
     /*
-    childRect: PegRect  = mw.FullAppRectangle();
-	swin: ScribbleWindow = new ScribbleWindow(childRect,mw);
-	mw.SetTopWindow(swin);
+    
+	
+	
 
 	// Need to set a main window for this module.  In our case, it is the scribble window
 	mw.SetMainWindow(swin);

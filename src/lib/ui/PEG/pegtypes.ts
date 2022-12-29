@@ -332,22 +332,22 @@ export class PegRect {
     
 }
 
-const BLACK: COLORVAL           = 0x000000
-const RED: COLORVAL             = 0xbf0000
-const GREEN: COLORVAL           = 0x00bf00
-const BROWN: COLORVAL           = 0xbfbf00
-const BLUE: COLORVAL            = 0x0000bf
-const MAGENTA: COLORVAL         = 0xbf00bf
-const CYAN: COLORVAL            = 0x00bfbf
-const LIGHTGRAY: COLORVAL       = 0xc0c0c0
-const DARKGRAY: COLORVAL        = 0x808080
-const LIGHTRED: COLORVAL        = 0xff0000
-const LIGHTGREEN: COLORVAL      = 0x00ff00
-const YELLOW: COLORVAL          = 0xffff00
-const LIGHTBLUE: COLORVAL       = 0x0000ff
-const LIGHTMAGENTA: COLORVAL    = 0xff00ff
-const LIGHTCYAN: COLORVAL       = 0x00ffff
-const WHITE: COLORVAL           = 0xffffff
+export const BLACK: COLORVAL           = 0x000000
+export const RED: COLORVAL             = 0xbf0000
+export const GREEN: COLORVAL           = 0x00bf00
+export const BROWN: COLORVAL           = 0xbfbf00
+export const BLUE: COLORVAL            = 0x0000bf
+export const MAGENTA: COLORVAL         = 0xbf00bf
+export const CYAN: COLORVAL            = 0x00bfbf
+export const LIGHTGRAY: COLORVAL       = 0xc0c0c0
+export const DARKGRAY: COLORVAL        = 0x808080
+export const LIGHTRED: COLORVAL        = 0xff0000
+export const LIGHTGREEN: COLORVAL      = 0x00ff00
+export const YELLOW: COLORVAL          = 0xffff00
+export const LIGHTBLUE: COLORVAL       = 0x0000ff
+export const LIGHTMAGENTA: COLORVAL    = 0xff00ff
+export const LIGHTCYAN: COLORVAL       = 0x00ffff
+export const WHITE: COLORVAL           = 0xffffff
 
 export const PCLR_HIGHLIGHT: COLORVAL =         WHITE
 export const PCLR_LOWLIGHT: COLORVAL =          DARKGRAY
