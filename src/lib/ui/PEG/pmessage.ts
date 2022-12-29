@@ -47,8 +47,8 @@ export enum PegSystemMessage {
     PM_MOVE_FOCUS
 }
 
-const FIRST_SIGNAL: WORD = 128;
-const FIRST_USER_MESSAGE: WORD = 0x4000;
+export const FIRST_SIGNAL: WORD = 128;
+export const FIRST_USER_MESSAGE: WORD = 0x4000;
 
 export class PegMessage {
     wType: WORD
@@ -68,6 +68,7 @@ export class PegMessage {
     wUserData: [WORD,WORD,WORD,WORD]
     uUserData: [UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR,UCHAR]
 
+    
     constructor (
         p1?: WORD | PegThing,
         wVal?: WORD
@@ -163,7 +164,7 @@ export class PegMessageQueue {
         // inMsg
     }
 
-    Pop(put: PegMessage) {
+    Pop(put: PegMessage): PegMessage {
         while(true) {
             if (this.mpFirst) {
                 put = this.mpFirst
@@ -182,7 +183,7 @@ export class PegMessageQueue {
                 if (!this.mpFirst) {
                     this.mpLast = null
                 }
-                return
+                return put
             } else {
                 console.log("TODO: IDLE")
                 debugger

@@ -2,7 +2,7 @@ import { charmap } from "../../../common/font";
 import type { BOOL, LONG, UCHAR, WORD } from "../native/windows";
 import { FF_MASK, FF_NONE, PegColor, PegPoint, PegRect, PSF_ACCEPTS_FOCUS, PSF_ALWAYS_ON_TOP, PSF_NONCLIENT, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, SIGMASK, TYPE_THING, type COLORVAL, type PegBitmap, type SIGNED, type TCHAR } from "./pegtypes";
 import type { PegFont } from "./pfonts";
-import { PegSystemMessage, type PegMessage, type PegMessageQueue } from "./pmessage";
+import { PegMessage, PegSystemMessage, type PegMessageQueue } from "./pmessage";
 import type { PegPresentationManager } from "./ppresent";
 import type { PegScreen, Viewport } from "./pscreen";
 
@@ -51,12 +51,14 @@ export abstract class PegThing {
 
         this.mpViewportList = null
 
-        if (p1 instanceof PegRect && wStyle) {
+        debugger
+
+        if (p1 instanceof PegRect) {
             const rect: PegRect = p1
             this.mReal = rect
             this.mClient = rect
             this.mClip = rect
-            this.mwStyle = wStyle
+            this.mwStyle = wStyle || FF_NONE
             this.mwId = p2
         } else if(typeof p1 == "number") {
             this.mwStyle = p2
@@ -85,7 +87,7 @@ export abstract class PegThing {
     abstract Draw();
 
     Add(what: PegThing, bDraw: boolean = true) {
-        let msg: PegMessage
+        let msg: PegMessage = new PegMessage()
         let pTemp: PegThing
 
         // make sure it is not already in the list:

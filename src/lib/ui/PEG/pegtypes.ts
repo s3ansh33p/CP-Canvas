@@ -178,7 +178,7 @@ export class PegRect {
                 p2.x,
                 p2.y
             );
-        } else if (typeof p1 === 'number' && typeof p2 === 'number' && x2 && y2 ) {
+        } else if (typeof p1 === 'number' && typeof p2 === 'number' && typeof x2 === 'number' && typeof y2 === 'number' ) {
             return new PegRect(
                 p1,
                 p2,
@@ -389,6 +389,13 @@ export class PegColor {
     }
 }
 
+// PegBitmap structure and flags definition.
+export const BMF_RAW =          0x00
+export const BMF_RLE =          0x01
+export const BMF_NATIVE =       0x02
+export const BMF_ROTATED =      0x04
+export const BMF_HAS_TRANS =    0x10     //
+export const BMF_SPRITE =       0x20     // bitmap resides in video memory
 
 export interface PegBitmap {
     uFlags: UCHAR           // combination of flags above
@@ -399,7 +406,47 @@ export interface PegBitmap {
     pStart: UCHAR           // bitmap data pointer
 }
 
+
+export const IS_RLE = (a: PegBitmap) => (a.uFlags & BMF_RLE)
+export const HAS_TRANS = (a: PegBitmap) => (a.uFlags & BMF_HAS_TRANS)
+export const IS_NATIVE = (a: PegBitmap) => (a.uFlags & BMF_NATIVE)
+export const IS_ROTATED = (a: PegBitmap) => (a.uFlags & BMF_ROTATED)
+export const IS_SPRITE = (a: PegBitmap) => (a.uFlags & BMF_SPRITE)
+
 // Helpers
 
 export const tstrlen = (s?: TCHAR[]) => { return (Array.isArray(s) && s.length) || 0 }
 export const tstrcpy = (buff: TCHAR[], base: TCHAR[]) => { return (Array.isArray(base) && [...base, ...buff.slice(tstrlen(base))]) || base }
+
+
+// PEG signal definitions. PegBaseSignals are supported by all objects. The
+// remaining signals are only supported by the object type indicated in the
+// enumeration name.
+
+export enum PegBaseSignals {
+    PSF_SIZED = 0,          // sent when the object is moved or sized
+    PSF_FOCUS_RECEIVED,     // sent when the object receives input focus
+    PSF_FOCUS_LOST,         // sent when the object loses input focus
+    PSF_KEY_RECEIVED,       // sent when an input key that is not supported is received
+    PSF_RIGHTCLICK          // sent when a right-click message is received by the object
+}
+
+export enum PegTextSignals {
+    PSF_TEXT_SELECT    = 8, // sent when the user selects all or a portion of a text object
+    PSF_TEXT_EDIT,          // sent each time text object string is modified
+    PSF_TEXT_EDITDONE       // sent when a text object modification is complete
+}
+
+export enum PegButtonSignals {
+    PSF_CLICKED = 8,        // default button select notification
+    PSF_CHECK_ON,           // sent by check box and  menu button when checked
+    PSF_CHECK_OFF,          // sent by check box and menu button when unchecked
+    PSF_DOT_ON,             // sent by radio button and menu button when selected
+    PSF_DOT_OFF,            // sent by radio button and menu button when unselected
+    PSF_LIST_SELECT         // sent by PegList derived objects, including PegComboBox
+}
+
+export enum PegScrollSignals {
+    PSF_SCROLL_CHANGE = 8,  // sent by non-client PegScroll derived objects
+    PSF_SLIDER_CHANGE       // sent by PegSlider derived objects
+}
