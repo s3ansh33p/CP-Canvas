@@ -1,9 +1,70 @@
 import type { int16_t } from "../native/native";
-import type { DWORD, UCHAR, WORD } from "../native/windows";
+import type { BOOL, DWORD, UCHAR, WORD } from "../native/windows";
 
 // Bare types
 export type SIGNED = int16_t
 export type TCHAR = UCHAR
+
+// Thing types - uType of all Peg GUI, query by Type()
+export const TYPE_THING: UCHAR =               1
+export const TYPE_TITLE: UCHAR =               2
+export const TYPE_MENU: UCHAR =                3
+export const TYPE_BUTTON: UCHAR =              5
+export const TYPE_HSCROLL: UCHAR =             6
+export const TYPE_VSCROLL: UCHAR =             7
+export const TYPE_ICON: UCHAR =                8
+export const TYPE_MENU_BAR: UCHAR =            9
+export const TYPE_MENU_BUTTON: UCHAR =         10
+export const TYPE_TEXTBUTTON: UCHAR =          11
+export const TYPE_BMBUTTON: UCHAR =            12
+export const TYPE_SPARE: UCHAR =               13
+export const TYPE_RADIOBUTTON: UCHAR =         14
+export const TYPE_CHECKBOX: UCHAR =            15
+export const TYPE_STATUS_BAR: UCHAR =          16
+export const TYPE_PROMPT: UCHAR =              17
+export const TYPE_VPROMPT: UCHAR =             18
+export const TYPE_SPARE3: UCHAR =              19
+export const TYPE_SPARE4: UCHAR =              20
+export const TYPE_SPARE5: UCHAR =              21
+export const TYPE_STRING: UCHAR =              22
+export const TYPE_SLIDER: UCHAR =              23
+export const TYPE_SPINBUTTON: UCHAR =          24
+export const TYPE_GROUP: UCHAR =               25
+export const TYPE_MLTEXTBUTTON: UCHAR =        26
+export const TYPE_TOOL_BAR_PANEL: UCHAR =      27
+export const TYPE_TOOL_BAR: UCHAR =            28
+export const TYPE_DECORATEDBUTTON: UCHAR =     29
+
+export const TYPE_LINE_CHART: UCHAR =          40
+export const TYPE_STRIP_CHART: UCHAR =         41
+export const TYPE_MULTI_LINE_CHART: UCHAR =    42
+
+export const TYPE_FDIAL: UCHAR =               50
+export const TYPE_FBM_DIAL: UCHAR =            51
+export const TYPE_CLR_LIGHT: UCHAR =           52
+export const TYPE_BM_LIGHT: UCHAR =            53
+export const TYPE_LIN_SCALE: UCHAR =           54
+export const TYPE_LIN_BM_SCALE: UCHAR =        55
+
+export const TYPE_CDIAL: UCHAR =               56
+export const TYPE_CBM_DIAL: UCHAR =            57
+
+export const TYPE_WINDOW: UCHAR =              150
+export const TYPE_DIALOG: UCHAR =              151
+export const TYPE_TABLE: UCHAR =               152
+export const TYPE_SPREADSHEET: UCHAR =         153
+export const TYPE_TEXTBOX: UCHAR =             154
+export const TYPE_MESSAGE: UCHAR =             155
+export const TYPE_DECORATED_WIN: UCHAR =       156
+export const TYPE_ANIMATION: UCHAR =           157
+export const TYPE_NOTEBOOK: UCHAR =            158
+export const TYPE_TREEVIEW: UCHAR =            159
+export const TYPE_TERMINAL_WIN: UCHAR =        160
+export const TYPE_LIST: UCHAR =                161
+export const TYPE_VLIST: UCHAR =               162
+export const TYPE_HLIST: UCHAR =               163
+export const TYPE_COMBO: UCHAR =               164
+export const TYPE_EDITBOX: UCHAR =             165
 
 // Frame Styles
 export const FF_NONE: WORD      = 0x0001
@@ -27,6 +88,19 @@ export const PSF_TAB_STOP: WORD =          0x0200
 export const PSF_OWNS_POINTER: WORD =      0x0400    
 export const PSF_ALWAYS_ON_TOP: WORD =     0x4000
 export const PSF_VIEWPORT: WORD =          0x8000
+
+export const PCI_NORMAL: UCHAR =          0
+export const PCI_SELECTED: UCHAR =        1
+export const PCI_NTEXT: UCHAR =           2
+export const PCI_STEXT: UCHAR =           3
+
+// Extended SpreadSheet color indexes:
+export const PCI_SS_COLHEADBACK: UCHAR = 4
+export const PCI_SS_COLHEADTEXT: UCHAR = 5
+export const PCI_SS_ROWHEADBACK: UCHAR = 6
+export const PCI_SS_ROWHEADTEXT: UCHAR = 7
+export const PCI_SS_DIVIDER: UCHAR     = 8
+export const PCI_SS_BACKGROUND: UCHAR  = 9
 
 // ColorVal
 export type COLORVAL = UCHAR
@@ -72,7 +146,14 @@ export class PegRect {
     wRight: SIGNED;
     wBottom: SIGNED;
 
-
+    /**
+    new PegRect(
+        wLeft,
+        wTop,
+        wRight,
+        wBottom
+    )
+    */
     constructor(
         x1: SIGNED, y1: SIGNED, x2: SIGNED, y2: SIGNED
     ) {
@@ -81,6 +162,7 @@ export class PegRect {
         this.wRight = x2;
         this.wBottom = y2;
     }
+    
     
     /// Set using two PegPoint objects
     static Set(ul: PegPoint , br: PegPoint );
@@ -105,8 +187,148 @@ export class PegRect {
             );
         }
     }
+
+    // operator &
+    and(rect: PegRect): PegRect {
+        let r: PegRect = this
+
+        if (r.wRight > rect.wRight) {
+            r.wRight = rect.wRight
+        }
+        
+        if (r.wTop < rect.wTop) {
+            r.wTop = rect.wTop
+        }
+        
+        if (r.wBottom > rect.wBottom) {
+            r.wBottom = rect.wBottom
+        }
+        
+        if (r.wLeft > rect.wLeft) {
+            r.wLeft = rect.wLeft
+        }
+
+        return r
+    }
+
+    // operator |
+    or(rect: PegRect): PegRect {
+        let r: PegRect = this
+
+        if (r.wLeft > rect.wLeft) {
+            r.wLeft = rect.wLeft
+        }
+        
+        if (r.wRight < rect.wRight) {
+            r.wRight = rect.wRight
+        }
+        
+        if (r.wTop > rect.wTop) {
+            r.wTop = rect.wTop
+        }
+        
+        if (r.wBottom > rect.wBottom) {
+            r.wBottom = rect.wBottom
+        }
+
+        return r
+    }
+
+    // operator +
+    AddPoint(point: PegPoint): PegRect {
+        return PegRect.Set(
+            this.wLeft + point.x,
+            this.wRight + point.x,
+            this.wTop + point.y,
+            this.wBottom + point.y
+        )
+    }
     
-    // abstract Contains(test: PegPoint): boolean;
+    // operator ==
+    equals(rect: PegRect) : BOOL {
+        return (rect.wTop == this.wTop &&
+            rect.wBottom == this.wBottom && 
+            rect.wLeft == this.wLeft &&
+            rect.wRight == this.wRight)
+    }
+
+    // operator !=
+    differs(rect: PegRect) : BOOL {
+        return (rect.wTop != this.wTop ||
+            rect.wBottom != this.wBottom || 
+            rect.wLeft != this.wLeft ||
+            rect.wRight != this.wRight)
+    }
+
+    // operator +=
+    increment(val: number): PegRect {
+        this.wLeft -= val
+        this.wRight += val
+        this.wTop -= val
+        this.wBottom += val
+        return this
+    }
+
+    // operator -=
+    decrement(val: number): PegRect {
+        this.wLeft += val
+        this.wRight -= val
+        this.wTop += val
+        this.wBottom -= val
+        
+        if (this.wLeft > this.wRight) {
+            this.wRight = this.wLeft
+        }
+
+        if(this.wBottom < this.wTop) {
+            this.wBottom = this.wTop
+        }
+
+        return this
+    }
+    
+    Overlap(that: PegRect): BOOL {
+        return (that.wLeft <= this.wRight &&
+            that.wTop <= this.wBottom && 
+            that.wBottom >= this.wTop &&
+            that.wRight >= this.wLeft)
+    }
+
+    MoveTo(x: SIGNED, y: SIGNED) {
+        let xShift: SIGNED = x - this.wLeft
+        let yShift: SIGNED = y - this.wTop
+        this.Shift(xShift, yShift)
+    }
+
+    Shift(x: SIGNED, y: SIGNED) {
+        this.wLeft += x
+        this.wRight += x
+        this.wTop += y
+        this.wBottom += y
+    }
+
+    Contains(rect: PegRect): BOOL
+    Contains(point: PegPoint): BOOL
+    Contains(x: SIGNED, y: SIGNED): BOOL
+    Contains(p1: PegRect | PegPoint | SIGNED, y?: SIGNED): BOOL {
+        if (p1 instanceof PegRect) {
+            return (p1.wLeft >= this.wRight &&
+                p1.wRight <= this.wRight && 
+                p1.wTop >= this.wTop &&
+                p1.wBottom <= this.wBottom)
+        } else if (p1 instanceof PegPoint) {
+            return (p1.x >= this.wLeft &&
+                p1.x <= this.wRight && 
+                p1.y >= this.wTop &&
+                p1.y <= this.wBottom)
+        } else if (typeof p1 == "number" && y) {
+            return (p1 >= this.wLeft &&
+                p1 <= this.wRight && 
+                y >= this.wTop &&
+                y <= this.wBottom)
+
+        }
+    }
     
 }
 
@@ -127,14 +349,29 @@ const LIGHTMAGENTA: COLORVAL    = 0xff00ff
 const LIGHTCYAN: COLORVAL       = 0x00ffff
 const WHITE: COLORVAL           = 0xffffff
 
+export const PCLR_HIGHLIGHT: COLORVAL =         WHITE
+export const PCLR_LOWLIGHT: COLORVAL =          DARKGRAY
+export const PCLR_SHADOW: COLORVAL =            BLACK
+export const PCLR_ACTIVE_TITLE: COLORVAL =      BLUE
+export const PCLR_INACTIVE_TITLE: COLORVAL =    DARKGRAY
+export const PCLR_NORMAL_TEXT: COLORVAL =       BLACK
+export const PCLR_HIGH_TEXT: COLORVAL =         WHITE
+export const PCLR_NORM_TEXT_BACK: COLORVAL =    WHITE
+export const PCLR_HIGH_TEXT_BACK: COLORVAL =    BLUE
+export const PCLR_CLIENT: COLORVAL =            WHITE
+export const PCLR_DIALOG: COLORVAL =            LIGHTGRAY
+export const PCLR_BORDER: COLORVAL =            LIGHTGRAY
+export const PCLR_BUTTON_FACE: COLORVAL =       LIGHTGRAY
+export const PCLR_CURSOR: COLORVAL =            LIGHTBLUE
+export const PCLR_DESKTOP: COLORVAL =           BLACK
+export const PCLR_FOCUS_INDICATOR: COLORVAL =   DARKGRAY
+
 // Color Flags
 const CF_NONE: UCHAR =    0x00;
 const CF_FILL: UCHAR =    0x01;
 const CF_DASHED: UCHAR =  0x02;
 const CF_XOR: UCHAR =     0x04;
 const CF_ALPHA: UCHAR =   0x08;
-
-const PCLR_DIALOG = LIGHTGRAY // WHITE
 
 export class PegColor {
     uForeground: COLORVAL

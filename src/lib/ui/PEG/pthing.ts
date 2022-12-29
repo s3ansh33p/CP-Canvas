@@ -1,8 +1,10 @@
+import { charmap } from "../../../common/font";
 import type { BOOL, LONG, UCHAR, WORD } from "../native/windows";
-import { FF_MASK, FF_NONE, PegColor, PegPoint, PegRect, PSF_VISIBLE, SIGMASK, type COLORVAL, type PegBitmap, type SIGNED, type TCHAR } from "./pegtypes";
+import { FF_MASK, FF_NONE, PegColor, PegPoint, PegRect, PSF_ACCEPTS_FOCUS, PSF_ALWAYS_ON_TOP, PSF_NONCLIENT, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, SIGMASK, TYPE_THING, type COLORVAL, type PegBitmap, type SIGNED, type TCHAR } from "./pegtypes";
 import type { PegFont } from "./pfonts";
-import type { PegMessage, PegMessageQueue } from "./pmessage";
+import { PegSystemMessage, type PegMessage, type PegMessageQueue } from "./pmessage";
 import type { PegPresentationManager } from "./ppresent";
+import type { PegScreen, Viewport } from "./pscreen";
 
 
 /**
@@ -11,7 +13,7 @@ import type { PegPresentationManager } from "./ppresent";
 export class PegThing {
     // friend class PegScreen;
 
-    muColors: [COLORVAL,COLORVAL,COLORVAL,COLORVAL];
+    muColors: [COLORVAL,COLORVAL,COLORVAL,COLORVAL] = [0,0,0,0];
     mReal: PegRect
     mClient: PegRect
     mClip: PegRect
@@ -26,16 +28,54 @@ export class PegThing {
     protected mpNext: PegThing
     protected mpPrev: PegThing
 
-    // static mpScreen: PegScreen
+    public mpViewportList: Viewport
+
+    static mpScreen: PegScreen
     static mpPresentation: PegPresentationManager
     static mpMessageQueue: PegMessageQueue
 
 
-    constructor(
-        private Rect: PegRect,
-        private wId: WORD = 0,
-        private wStyle: WORD = FF_NONE) {
-            // TODO
+    constructor (
+        p1: PegRect | WORD,
+        p2: WORD,
+        wStyle?: WORD
+
+    ) {
+        this.muType = TYPE_THING
+        this.mwSignalMask = 0
+        this.mwStatus = PSF_SELECTABLE|PSF_ACCEPTS_FOCUS
+        this.mpParent = null
+        this.mpFirst = null
+        this.mpNext = null
+        this.mpPrev = null
+
+        this.mpViewportList = null
+
+        if (p1 instanceof PegRect && wStyle) {
+            const rect: PegRect = p1
+            this.mReal = rect
+            this.mClient = rect
+            this.mClip = rect
+            this.mwStyle = wStyle
+            this.mwId = p2
+        } else if(typeof p1 == "number") {
+            this.mwStyle = p2
+            this.mwId = p1
+            this.mReal = PegRect.Set(0, 0, 0, 0);
+            this.mClient = this.mReal;
+            this.mClip = this.mReal;
+        }
+    }
+
+    destruct() {
+        while (this.mpFirst) {
+            let delPtr: PegThing = this.mpFirst
+            this.mpFirst = delPtr.mpNext
+            delPtr.destruct() // polyfill for delete + destructor
+        }
+        if (this.mpViewportList) {
+            // this.Screen().FreeViewports(this);
+        }
     }
 
     Message(mesg: PegMessage): SIGNED {
@@ -45,7 +85,117 @@ export class PegThing {
     Draw() {}
 
     Add(what: PegThing, bDraw: boolean = true) {
-        let msg: PegMessage;
+        let msg: PegMessage
+        let pTemp: PegThing
+
+        // make sure it is not already in the list:
+        if (what.mpParent == this) {
+            if (this.mpFirst == what) {
+                return;
+            }
+            pTemp = this.mpFirst
+
+            while(pTemp) {
+                if (pTemp.mpNext == what) {
+                    // already in list, unlink it for move to front
+                    pTemp.mpNext = what.mpNext
+                    if (pTemp.mpNext) {
+                        pTemp.mpNext.mpPrev = pTemp
+                    }
+                    break
+                }
+                pTemp = pTemp.mpNext
+            }
+        }
+
+        // update my links, default to putting What in front:
+        what.mpParent = this
+        what.mpNext = this.mpFirst
+        what.mpPrev = null
+
+        if(this.mpFirst) {
+            // Make sure to put What after any ALWAYS_ON_TOP objects:
+            if (this.mpFirst.StatusIs(PSF_ALWAYS_ON_TOP) && !what.StatusIs(PSF_ALWAYS_ON_TOP)) {
+                pTemp = this.mpFirst
+
+                while(pTemp.mpNext) {
+                    if (pTemp.mpNext.StatusIs(PSF_ALWAYS_ON_TOP)) {
+                        pTemp = pTemp.mpNext
+                    } else {
+                        break
+                    }
+                }
+
+                // What goes after the object pointed to by pTemp:
+                what.mpNext = pTemp.mpNext
+                what.mpPrev = pTemp
+                pTemp.mpNext = what
+
+                if (what.mpNext) {
+                    what.mpNext.mpPrev = what
+                }
+            } else {
+                // Make sure we keep the Viewport owners on top of any lesser siblings:
+                if (!what.StatusIs(PSF_VIEWPORT) && this.mpFirst.StatusIs(PSF_VIEWPORT)) {
+                    pTemp = this.mpFirst
+                    while(pTemp.mpNext) {
+                        if (pTemp.mpNext.StatusIs(PSF_VIEWPORT)) {
+                            pTemp = pTemp.mpNext
+                        } else {
+                            break
+                        }
+                    }
+
+                    // What goes after the object pointed to by pTemp:
+                    what.mpNext = pTemp.mpNext
+                    what.mpPrev = pTemp
+                    pTemp.mpNext = what
+
+                    if (what.mpNext) {
+                        what.mpNext.mpPrev = what
+                    }
+                } else {
+                    // What becomes my First child:
+                    this.mpFirst.mpPrev = what
+                    this.mpFirst = what
+                }
+            }
+        } else {
+            this.mpFirst = what
+        }
+
+        if (this.mwStatus & PSF_VISIBLE) {
+            if (!(what.mwStatus & PSF_VISIBLE)) {
+                // insure a zero clipping area:
+                what.mClip.wRight = what.mClip.wLeft - 1
+                
+                // tell the object it is now visible
+                msg.wType = PegSystemMessage.PM_SHOW
+                what.Message(msg)
+
+                // now update the objects clipping area:
+                what.mClip = what.mReal.and(this.mClip) // mReal & mClip
+
+                if (!what.StatusIs(PSF_NONCLIENT)) {
+                    what.mClip = what.mClip.and(this.mClip) // &= mClip
+                }
+
+                if (what.mpFirst) {
+                    what.UpdateChildClipping()
+                }
+
+            }
+
+            if (what.StatusIs(PSF_VIEWPORT)) {
+                this.Screen().GenerateViewportList(this)
+            }
+
+            if (bDraw) {
+                this.Screen().Invalidate(what.mClip)
+                what.Draw()
+            }
+        }
+
         // super.Add(what, bDraw)
     }
     
@@ -87,9 +237,9 @@ export class PegThing {
         return PegThing.mpMessageQueue
     }
 
-    // Screen(): PegScreen {
-    //     return PegThing.mpScreen
-    // }
+    Screen(): PegScreen {
+        return PegThing.mpScreen
+    }
 
     
     // Since it's using getter+setter as a single call, it's a cool hack to have it in JS
@@ -160,7 +310,7 @@ export class PegThing {
         if (wStyle === undefined) {
             return this.mwStyle & FF_MASK
         } else {
-            this.wStyle &= FF_MASK
+            wStyle &= FF_MASK
             this.mwStyle &= ~FF_MASK
             this.mwStyle |= wStyle
         }
@@ -184,9 +334,9 @@ export class PegThing {
     ClipLowerSiblingObjects() {}
     ParentShift(x: SIGNED, y: SIGNED) {}
 
-    // SetScreenPtr(ps: PegScreen) {
-    //     this.mpScreen = ps
-    // }
+    SetScreenPtr(ps: PegScreen) {
+        PegThing.mpScreen = ps
+    }
 
     SetMessageQueuePtr(pq: PegMessageQueue) {
         PegThing.mpMessageQueue = pq
@@ -196,7 +346,7 @@ export class PegThing {
         PegThing.mpPresentation = pm
     }
 
-    // ViewportList(): Viewport  {return this.mpViewportList;}
+    ViewportList(): Viewport  {return this.mpViewportList;}
 
     DefaultKeyHandler(imMesg: PegMessage) {}
     CheckDirectionalMove(iKey: SIGNED, bLoose: BOOL = false): BOOL {
