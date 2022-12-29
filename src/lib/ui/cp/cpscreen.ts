@@ -55,7 +55,7 @@ export class CPCanvasScreen extends PegScreen {
         throw new Error('Method not implemented.')
     }
     constructor(
-        rect: PegScreen
+        rect: PegRect
     ) {
         super()
     }

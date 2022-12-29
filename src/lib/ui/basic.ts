@@ -1,8 +1,13 @@
 import { Debug_Printf, Debug_PrintString, Debug_SetCursorPosition, fillScreen, LCD_Refresh, line, setPixel, triangle, color } from "../drawing";
 import { CPMainFrame } from "./cp/cpmainframe";
 import { CPModuleWindow } from "./cp/cpmodulewindow";
+import { CPCanvasScreen } from "./cp/cpscreen";
 import { MAINFRAME_LEFT, MAINFRAME_TOP, MAINFRAME_RIGHT, MAINFRAME_BOTTOM } from "./cp/windowsize";
 import { BLACK, PegColor, PegPoint, PegRect } from "./PEG/pegtypes";
+import { PegMessageQueue } from "./PEG/pmessage";
+import { PegPresentationManager } from "./PEG/ppresent";
+import type { PegScreen } from "./PEG/pscreen";
+import { PegThing } from "./PEG/pthing";
 
 
 class ScribbleFrame extends CPMainFrame {
@@ -24,8 +29,9 @@ class ScribbleWindow extends CPModuleWindow {
     }
 
     Draw(): void {
+        debugger
         this.BeginDraw()
-        // this.DrawFrame()
+        this.DrawFrame()
         let pp: PegPoint = new PegPoint(10,10)
         let col = BLACK
         // DrawTextR(pp, "Hello World",col, PegTextThing.GetBasicFont())
@@ -33,7 +39,7 @@ class ScribbleWindow extends CPModuleWindow {
     }
 }
 
-export function drawGUI() {
+function PegAppInitialize(pPresentation: PegPresentationManager) {
 	fillScreen(color(64,64,64));
 
     // TODO: find where it comes from ?
@@ -59,7 +65,34 @@ export function drawGUI() {
 	pPresentation.Add(mw);
     */
 
-	Debug_Printf(10, 1, false, "Test" + rect.wTop+":"+rect.wLeft+":"+rect.wBottom+":"+rect.wRight);
+	// Debug_Printf(10, 1, false, "Test" + rect.wTop+":"+rect.wLeft+":"+rect.wBottom+":"+rect.wRight);
 
 	LCD_Refresh();
+}
+
+
+
+// test some fake main ?
+export function WinMain() {
+    let szAppName = "Peg Application"
+
+    // create the screen interface object
+    let rect: PegRect = PegRect.Set(0,0, 600, 800)
+
+    let pScreen: PegScreen = new CPCanvasScreen(rect)
+    PegThing.SetScreenPtr(pScreen)
+
+    // create the PEG message Queue
+    let pMsgQueue: PegMessageQueue = new PegMessageQueue()
+    PegThing.SetMessageQueuePtr(pMsgQueue)
+
+    // create the screen manager
+    let pPresentation: PegPresentationManager = new PegPresentationManager(rect)
+    PegThing.SetPresentationManagerPtr(pPresentation)
+
+    // #ifdef PEG_FULL_CLIPPING
+    // pScreen.GenerateViewportList(pPresentation)
+
+
+    PegAppInitialize(pPresentation)
 }

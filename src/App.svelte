@@ -4,7 +4,7 @@
 	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug, exampleDisplay, LCD_ClearScreen, LCD_Refresh, Debug_SelectMode1 } from "./lib/drawing";
 	import { keyEventHandler } from "./lib/helpers";
 	import { onMount } from "svelte";
-  import { drawGUI } from "./lib/ui/basic";
+  import { WinMain } from "./lib/ui/basic";
 
 	onMount(() => {
 		clearScreen();
@@ -106,7 +106,7 @@
 			<button on:click={LCD_Refresh}>LCD_Refresh</button>
 			<button on:click={LCD_ClearScreen}>LCD_ClearScreen</button>
 			<button on:click={Debug_SelectMode1}>Debug_SelectMode1</button>
-			<button on:click={drawGUI}>Test_UI</button>
+			<button on:click={WinMain}>Test_UI</button>
 		</div>
 	</div>
 </main>

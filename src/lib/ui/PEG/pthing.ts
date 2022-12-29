@@ -334,15 +334,15 @@ export class PegThing {
     ClipLowerSiblingObjects() {}
     ParentShift(x: SIGNED, y: SIGNED) {}
 
-    SetScreenPtr(ps: PegScreen) {
+    static SetScreenPtr(ps: PegScreen) {
         PegThing.mpScreen = ps
     }
 
-    SetMessageQueuePtr(pq: PegMessageQueue) {
+    static SetMessageQueuePtr(pq: PegMessageQueue) {
         PegThing.mpMessageQueue = pq
     }
 
-    SetPresentationManagerPtr(pm: PegPresentationManager) {
+    static SetPresentationManagerPtr(pm: PegPresentationManager) {
         PegThing.mpPresentation = pm
     }
 

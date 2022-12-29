@@ -367,11 +367,11 @@ export const PCLR_DESKTOP: COLORVAL =           BLACK
 export const PCLR_FOCUS_INDICATOR: COLORVAL =   DARKGRAY
 
 // Color Flags
-const CF_NONE: UCHAR =    0x00;
-const CF_FILL: UCHAR =    0x01;
-const CF_DASHED: UCHAR =  0x02;
-const CF_XOR: UCHAR =     0x04;
-const CF_ALPHA: UCHAR =   0x08;
+export const CF_NONE: UCHAR =    0x00
+export const CF_FILL: UCHAR =    0x01
+export const CF_DASHED: UCHAR =  0x02
+export const CF_XOR: UCHAR =     0x04
+export const CF_ALPHA: UCHAR =   0x08
 
 export class PegColor {
     uForeground: COLORVAL

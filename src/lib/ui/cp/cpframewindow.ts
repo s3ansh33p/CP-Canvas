@@ -16,7 +16,9 @@ export class CPFrameWindow extends PegThing {
         }
     }
 
-    DrawFrame(bFill: BOOL = true) {}
+    DrawFrame(bFill: BOOL = true) {
+        console.log("todo: CPFrameWindow::DrawFrame")
+    }
 
     MoveFocusToFirstClientChild() {}
 
