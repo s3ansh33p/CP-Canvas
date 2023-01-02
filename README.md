@@ -26,3 +26,8 @@ Choose "make public" to your app port
 - Quick access buttons
 - Fake poweroff animation
 - Fake HomeScreen UI
+
+## Changelog
+2-Jan-2023
+ - Added debug x/y mouse position
+ - Ported custom font functions and 5x6/7x8 fonts

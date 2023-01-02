@@ -83,9 +83,12 @@
 		dispatch("touchMove", {
 			event: ev,
 		});
+		let pos = touchEventToPosition(ev);
+		document.getElementById("db-ms-x").innerHTML = "X: " + Math.ceil(pos[0]).toString();
+		document.getElementById("db-ms-y").innerHTML = "Y: " + Math.ceil(pos[1]).toString();
 		let isMouseDown = get(mouseDown);
 		if (isMouseDown) {
-			handleTouch(...touchEventToPosition(ev), "drag");
+			handleTouch(pos[0], pos[1], "drag");
 		}
 	}
 

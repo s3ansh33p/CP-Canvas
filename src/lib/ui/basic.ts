@@ -40,7 +40,7 @@ class ScribbleWindow extends CPModuleWindow {
         this.EndDraw()
     }
 }
-s
+
 function PegAppInitialize(pPresentation: PegPresentationManager) {
 	fillScreen(color(64,64,64));
 	

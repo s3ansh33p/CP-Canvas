@@ -4,7 +4,8 @@
 	import { clearScreen, Debug_Printf, doDrawPixels, drawAllDebug, exampleDisplay, LCD_ClearScreen, LCD_Refresh, Debug_SelectMode1 } from "./lib/drawing";
 	import { keyEventHandler } from "./lib/helpers";
 	import { onMount } from "svelte";
-  import { WinMain } from "./lib/ui/basic";
+  	import { WinMain } from "./lib/ui/basic";
+	import { test_custom_fonts } from "./lib/textures/test";
 
 	onMount(() => {
 		clearScreen();
@@ -107,6 +108,14 @@
 			<button on:click={LCD_ClearScreen}>LCD_ClearScreen</button>
 			<button on:click={Debug_SelectMode1}>Debug_SelectMode1</button>
 			<button on:click={WinMain}>Test_UI</button>
+			<button on:click={test_custom_fonts}>Test Custom Fonts</button>
+		</div>
+
+		<div class="debug">
+			<pre>
+				<span id="db-ms-x"></span>
+				<span id="db-ms-y"></span>
+			</pre>
 		</div>
 	</div>
 </main>
@@ -121,5 +130,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+	}
+	.debug {
+		position: fixed;
+		top: 0;
+		right: 0;
 	}
 </style>
