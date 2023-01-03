@@ -1,6 +1,6 @@
 // see draw_functions.hpp by InterChan
 import { setPixel, INT_RGB565TO888, type RGBColor } from '../drawing'
-import { decodeBase64, font_7x8, font_5x6 } from './loader';
+import { decodeBase64, font_7x8, font_5x6, font_7x8_up2x } from './loader';
 import { SIN } from './trig'
 
 // export const LOAD_TEXTURE_PTR = (path: string) => load_texture(path)
@@ -20,6 +20,8 @@ function load_font(fontpath: string): Uint8Array {
         return decodeBase64(font_7x8);
     } else if (fontpath == "font_5x6") {
         return decodeBase64(font_5x6);
+    } else if (fontpath == "font_7x8_up2x") {
+        return decodeBase64(font_7x8_up2x);
     }
     return new Uint8Array(0);
 }

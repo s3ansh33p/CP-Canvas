@@ -1,5 +1,6 @@
 import { charmap } from "../../common/font";
-import { LCD_Refresh } from "../drawing";
+import { WIDTH } from "../../specs";
+import { color, fillScreen, LCD_Refresh, line } from "../drawing";
 import { DRAW_FONT, LOAD_FONT_PTR } from "./draw_functions";
 
 export function test_custom_fonts() {
@@ -15,3 +16,49 @@ export function test_custom_fonts() {
 
     LCD_Refresh();
 }
+
+export function test_virtual_keyboard() {
+    // set to black
+    fillScreen([0, 0, 0]);
+    // create a virtual keyboard
+    let fontp = LOAD_FONT_PTR("font_7x8_up2x");
+    let fontp2 = LOAD_FONT_PTR("font_5x6");
+    // qwertyuiop
+    const line1 = "1234567890";
+    const line2 = "azertyuiop";
+    const line3 = "qsdfghjklm";
+    const line4 = "wxcvbn'";
+    let xSpace = 28;
+    let ySpace = 28;
+    let yMin = 400;
+    let leftX = WIDTH/2 - (line1.length * xSpace)/2;
+    for (let i = 0; i < line1.length; i++) {
+        DRAW_FONT(fontp, line1[i], leftX + i * xSpace, yMin, [255, 255, 255], 0);
+        DRAW_FONT(fontp, line2[i], leftX + i * xSpace, yMin + ySpace, [255, 255, 255], 0);
+        DRAW_FONT(fontp, line3[i], leftX + i * xSpace, yMin + ySpace * 2, [255, 255, 255], 0);
+    }
+    let leftX2 = WIDTH/2 - (line4.length * xSpace)/2;
+    for (let i = 0; i < line4.length; i++) {
+        DRAW_FONT(fontp, line4[i], leftX2 + i * xSpace, yMin + ySpace * 3, [255, 255, 255], 0);
+    }
+    // shift key
+    DRAW_FONT(fontp2, "shift", leftX, yMin + ySpace * 3 + 7, [255, 255, 255], 0);
+    // backspace key
+    DRAW_FONT(fontp2, "back", WIDTH - xSpace * 2, yMin + ySpace * 3 + 7, [255, 255, 255], 0);
+
+    // highlight the first key - rectangle around it
+    let highlightColor = color(255, 255, 0);
+    let hx = 1;
+    let hy = 2;
+    let startX = leftX - xSpace/4;
+    let startY = yMin - ySpace/4;
+    line(startX + hx * xSpace, startY + hy * ySpace, startX + (hx + 1) * xSpace, startY + hy * ySpace, highlightColor);
+    line(startX + hx * xSpace, startY + hy * ySpace, startX + hx * xSpace, startY + (hy + 1) * ySpace, highlightColor);
+    line(startX + (hx + 1) * xSpace, startY + hy * ySpace, startX + (hx + 1) * xSpace, startY + (hy + 1) * ySpace, highlightColor);
+    line(startX + hx * xSpace, startY + (hy + 1) * ySpace, startX + (hx + 1) * xSpace, startY + (hy + 1) * ySpace, highlightColor);
+    // lazy highlight the key "s"
+    DRAW_FONT(fontp, "s", leftX + hx * xSpace, yMin + hy * ySpace, highlightColor, 0);
+
+    LCD_Refresh();
+}
+
