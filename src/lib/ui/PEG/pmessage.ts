@@ -89,24 +89,24 @@ export class PegMessage {
 }
 
 export class PegTimer {
-    next?: PegTimer
-    who?: PegThing
-    wId?: WORD
-    lCnt?: LONG
-    lRes?: LONG
+    pNext?: PegTimer
+    pTarget?: PegThing
+    lCount?: LONG
+    lReset?: LONG
+    wTimerId?: WORD
 
     constructor (
-        next?: PegTimer,
-        who?: PegThing,
-        wId?: WORD,
-        lCnt?: LONG,
-        lRes?: LONG
+        pNext?: PegTimer,
+        pTarget?: PegThing,
+        wTimerId?: WORD,
+        lCount?: LONG,
+        lReset?: LONG
     ) {
-        this.next = next || null
-        this.who = who || null
-        this.wId = wId
-        this.lCnt = lCnt
-        this.lRes = lRes
+        this.pNext = pNext || null
+        this.pTarget = pTarget || null
+        this.lCount = lCount
+        this.lReset = lReset
+        this.wTimerId = wTimerId
     }
 }
 
@@ -135,7 +135,7 @@ export class PegMessageQueue {
     }
 
     Push(inMsg: PegMessage) {
-        console.log(`PegMessageQueue::Push : `, inMsg)
+        console.log(`PegMessageQueue::Push : ${PegSystemMessage[inMsg.wType] || inMsg.wType}`, inMsg)
 
         if (inMsg.pTarget) {
             this.lTargMesg++
@@ -167,7 +167,8 @@ export class PegMessageQueue {
     Pop(put: PegMessage): PegMessage {
         while(true) {
             if (this.mpFirst) {
-                put = this.mpFirst
+                Object.assign(put, this.mpFirst)
+                // put = this.mpFirst
                 put.next = null
 
                 if (this.mpFreeEnd) {
@@ -187,15 +188,72 @@ export class PegMessageQueue {
             } else {
                 console.log("TODO: IDLE")
                 debugger
-                // PegIdleFunction()
+                this.PegIdleFunction()
             }
         }
     }
 
-    Fold(inMsg: PegMessage) {}
+    PegIdleFunction(): void {
+        let bQuit = false
+        let pt: PegThing = null
+        // let newMessage: PegMessage
+        // newMessage.lData = 0
+        
+        PegThing.mpMessageQueue.TimerTick()
+    }
+
+    Fold(inMsg: PegMessage) {
+        let pTest: PegMessage = this.mpFirst
+
+        while(pTest) {
+            if (pTest.wType == inMsg.wType && pTest.pTarget == inMsg.pTarget && pTest.iData == inMsg.iData) {
+                // these messages match, fold the old one into the new one:
+                pTest.rect = inMsg.rect
+                
+                return
+            }
+            pTest = pTest.next
+        }
+        this.Push(inMsg)
+    }
+    
     Purge(inMsg: PegThing) {}
     SetTimer(who: PegThing, wId: WORD, lCount: LONG, lReset: LONG) {}
     KillTimer(who: PegThing, wId: WORD) {}
-    TimerTick() {}
+    
+    TimerTick() {
+        let pTimer: PegTimer = this.mpTimerList
+        let pPrevious: PegTimer = pTimer
+        let newMessage: PegMessage
+
+        while(pTimer) {
+            pTimer.lCount--
+
+            if (pTimer.lCount == 0) {
+                // send a message to this guy:
+
+                newMessage.wType = PegSystemMessage.PM_TIMER
+                newMessage.pTarget = pTimer.pTarget
+                newMessage.iData = pTimer.wTimerId
+                this.Fold(newMessage)
+
+                if (pTimer.lReset > 0) {
+                    pTimer.lCount = pTimer.lReset
+                    pTimer = pTimer.pNext
+                } else {
+                    if (pTimer == this.mpTimerList) {
+                        this.mpTimerList =pTimer.pNext
+                        pTimer = this.mpTimerList
+                    } else {
+                        pPrevious.pNext = pTimer.pNext
+                        pTimer = pPrevious.pNext
+                    }
+                }
+            } else {
+                pPrevious = pTimer
+                pTimer = pTimer.pNext
+            }
+        }
+    }
 
 }

@@ -130,6 +130,7 @@ export abstract class PegScreen {
     abstract DrawText(caller: PegThing, where: PegPoint, text: TCHAR[], color: PegColor, font: PegFont, count: SIGNED);
 
     abstract TextHeight(text: TCHAR[], font: PegFont): SIGNED;
+    abstract TextWidth(text: TCHAR[], font: PegFont): SIGNED;
     abstract TextWidth(text: TCHAR[], font: PegFont, iLen: SIGNED): SIGNED;
 
     Invalidate(rect?: PegRect) {
@@ -152,6 +153,45 @@ export abstract class PegScreen {
         }
         return false
     }
+
+    ClipRectNoInvalid(rect: PegRect, mClip: PegRect): BOOL {
+            if (this.mbVirtualDraw)
+            {
+                Object.assign(rect, rect.and(this.mVirtualRect)) // &=
+
+                if (rect.wLeft > rect.wRight || rect.wBottom < rect.wTop) {
+                    return false;
+                }
+                return true;
+            }
+
+            Object.assign(rect, rect.and(mClip)) // &=
+
+            if (rect.wLeft > rect.wRight || rect.wBottom < rect.wTop) {
+                return false;
+            }
+            return true;
+        }
+
+    abstract RectangleXOR(caller: PegThing, inRect: PegRect): void;
+    InvertRect(caller: PegThing,  inRect: PegRect): void {
+        let rect: PegRect = inRect
+        if (!caller) return
+        if (!caller.StatusIs(PSF_VISIBLE)) return
+        if (!this.ClipRectNoInvalid(rect, caller.mClip)) return
+
+        for (let i = rect.wTop; i <= rect.wBottom; ++i) {
+            this.HorizontalLineXOR(rect.wLeft, rect.wRight, i)
+        }
+        
+    }
+
+    abstract GetPointerType(): UCHAR;
+    GetXPointerOffset(): SIGNED { return this.miCurXOffset}
+    GetYPointerOffset(): SIGNED { return this.miCurYOffset}
+    GetPointer(): PegBitmap { return this.mpCurPointer}
+    GetXRes(): SIGNED { return this.mwHRes}
+    GetYRes(): SIGNED { return this.mwVRes}
 
     FreeViewports(caller: PegThing) {
         let pStart: Viewport = caller.mpViewportList
@@ -322,3 +362,10 @@ export abstract class PegScreen {
 
 
 }
+
+/*--------------------------------------------------------------------------*/
+// Prototype for CreatePegScreen()-
+//
+// The actual implementation is in each individual derived PegScreen class.
+/*--------------------------------------------------------------------------*/
+export let CreatePegScreen = (): PegScreen => { throw new Error('Need to be implemented by derived PegScreen class'); };

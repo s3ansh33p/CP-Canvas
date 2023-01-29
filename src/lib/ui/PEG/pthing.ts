@@ -1,8 +1,8 @@
 import { charmap } from "../../../common/font";
 import type { BOOL, LONG, UCHAR, WORD } from "../native/windows";
-import { FF_MASK, FF_NONE, PegColor, PegPoint, PegRect, PSF_ACCEPTS_FOCUS, PSF_ALWAYS_ON_TOP, PSF_NONCLIENT, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, SIGMASK, TYPE_THING, type COLORVAL, type PegBitmap, type SIGNED, type TCHAR } from "./pegtypes";
+import { FF_MASK, FF_NONE, FF_RAISED, FF_RECESSED, FF_THICK, FF_THIN, PegColor, PegPoint, PegRect, PSF_ACCEPTS_FOCUS, PSF_ALWAYS_ON_TOP, PSF_CURRENT, PSF_NONCLIENT, PSF_OWNS_POINTER, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, SIGMASK, TYPE_THING, type COLORVAL, type PegBitmap, type SIGNED, type TCHAR } from "./pegtypes";
 import type { PegFont } from "./pfonts";
-import { PegMessage, PegSystemMessage, type PegMessageQueue } from "./pmessage";
+import { PegMessage, PegMessageQueue, PegSystemMessage } from "./pmessage";
 import type { PegPresentationManager } from "./ppresent";
 import type { PegScreen, Viewport } from "./pscreen";
 
@@ -67,7 +67,7 @@ export abstract class PegThing {
         }
     }
 
-    destruct() {
+    destruct(): void {
         while (this.mpFirst) {
             let delPtr: PegThing = this.mpFirst
             this.mpFirst = delPtr.mpNext
@@ -79,12 +79,41 @@ export abstract class PegThing {
     }
 
     Message(mesg: PegMessage): SIGNED {
+        switch(mesg.wType) {
+            case PegSystemMessage.PM_DRAW:
+                this.Invalidate(this.mReal)
+                this.Draw()
+                break
+            
+            case PegSystemMessage.PM_SHOW:
+                this.mwStatus |= PSF_VISIBLE
+                this.MessageChildren(mesg)
+                break
+            
+            case PegSystemMessage.PM_HIDE:
+                if (this.mwStatus & PSF_CURRENT) {
+                    this.Presentation().NullInput(this)
+                }
+                this.mwStatus |= PSF_VISIBLE
+                this.MessageChildren(mesg)
+                break
+            
+                
+                
+            
+        }
         return 0; // TODO
     }
 
-    abstract Draw();
+    Draw(): void {
+        if (this.mwStatus & PSF_VISIBLE) {
+            this.BeginDraw()
+            this.DrawChildren()
+            this.EndDraw()
+        }
+    }
 
-    Add(what: PegThing, bDraw: boolean = true) {
+    Add(what: PegThing, bDraw: boolean = true): void {
         let msg: PegMessage = new PegMessage()
         let pTemp: PegThing
 
@@ -199,14 +228,38 @@ export abstract class PegThing {
         // super.Add(what, bDraw)
     }
     
-    AddToEnd(what: PegThing, bDraw: boolean = true) {}
+    AddToEnd(what: PegThing, bDraw: boolean = true) {
+        debugger
+    }
     Remove(what: PegThing, bDraw: boolean) {}
     SetColor(uIndex: UCHAR, uColor: COLORVAL) {}
     GetColor(uIndex: UCHAR): COLORVAL {
         return 0; // TODO
     }
     Center(who: PegThing) {}
-    DrawChildren() {}
+    DrawChildren() {
+        if (!this.mpFirst) return
+
+        let pCurrent: PegThing = this.mpFirst
+
+        while(pCurrent.mpNext) {
+            pCurrent = pCurrent.mpNext
+        }
+
+        while(pCurrent) {
+            // #ifdef PEG_AWT_SUPPORT
+            if (this.mReal.Overlap(pCurrent.mClip)) {
+                // pCurrent.Draw()
+            }
+            //  #else
+            if (this.Screen().InvalidOverlap(pCurrent.mClip)) {
+                pCurrent.Draw()
+            }
+            // # endif
+            pCurrent = pCurrent.mpPrev
+        }
+        
+    }
     Resize(rect: PegRect) {}
     Dectroy(who: PegThing) {}
     Version(): TCHAR {
@@ -304,7 +357,8 @@ export abstract class PegThing {
     }
 
     CapturePointer() {}
-    ReleasePointer() {}
+    ReleasePointer() {
+    }
 
     FrameStyle(wStyle?: WORD): WORD | null {
         if (wStyle === undefined) {
@@ -324,7 +378,38 @@ export abstract class PegThing {
         }
     }
 
-    InitClient() {}
+    InitClient() {
+        this.mClient = this.mReal
+
+        // switch(this.mwStyle & FF_MASK) {
+            // case FF_RECESSED:
+            // case FF_RAISED:
+            //     if (this.Screen().NumColors() >= 4) {
+            //         this.mClient -= 2;
+            //     } else {
+            //         mClient--;
+            //     }
+            //     break;
+            // case FF_RECESSED:
+            // case FF_RAISED:
+            //     mClient -= 2;
+            //     break;
+            // #endif
+            // #endif
+        
+            // case FF_THIN:
+            //     mClient--;
+            //     break;
+        
+            // case FF_THICK:
+            //     mClient -= PEG_FRAME_WIDTH;
+            //     break;
+        
+            // case FF_NONE:
+            // default:
+            //     break;
+            // }
+    }
 
     SendSignal(uSignal: UCHAR) {}
     StandardBorder(bFillColor: COLORVAL) {}
@@ -370,51 +455,60 @@ export abstract class PegThing {
 
     // PegScreen wrappers
     BeginDraw(pbm?: PegBitmap) {
-        // Screen().BeginDraw(this, pbm);
+        if (pbm) {
+            this.Screen().BeginDraw(this, pbm);
+        } else {
+            this.Screen().BeginDraw(this);
+        }
     }
     EndDraw(pbm?: PegBitmap) {
-        // Screen().EndDraw(this, pbm);
+        if (pbm) {
+            this.Screen().EndDraw(pbm);
+        } else {
+            this.Screen().EndDraw();
+        }
     }
     Line(wXStart: SIGNED , wYStart: SIGNED,
         wXEnd: SIGNED, wYEnd: SIGNED, color: PegColor,
         wWidth: SIGNED = 1) {
-            // Screen()->Line(this, wXStart, wYStart, wXEnd, wYEnd, color, wWidth);
+            this.Screen().Line(this, wXStart, wYStart, wXEnd, wYEnd, color, wWidth);
     }
     Rectangle(rect: PegRect, color: PegColor, wWidth: SIGNED = 1) {
-        // Screen()->Rectangle(this, Rect, Color, wWidth);
+        this.Screen().Rectangle(this, rect, color, wWidth);
     }
     Bitmap(where: PegPoint, bitmap: PegBitmap, bOnTop: BOOL = false) {
-        // Screen()->Bitmap(this, Where, bitmap, bOnTop);
+        this.Screen().Bitmap(this, where, bitmap, bOnTop);
     }
     BitmapFill(rect: PegRect, bitmap: PegBitmap) {
-        // Screen()->BitmapFill(this, Rect, Getmap);
+        this.Screen().BitmapFill(this, rect, bitmap);
     }
     RectMove(rect: PegRect, point: PegPoint) {
-        // Screen()->RectMove(this, rect, point);
+        this.Screen().RectMove(this, rect, point);
     }
     DrawText(where: PegPoint, text: TCHAR[], color: PegColor, font: PegFont, count: SIGNED = 1) {
-        // Screen()->DrawText(this, where, text, color, font, count);
+        this.Screen().DrawText(this, where, text, color, font, count);
     }
     TextHeight(text: TCHAR[], font: PegFont): SIGNED {
-        // return Screen()->TextHeight(Text, Font);
-        return 12; // TODO
+        return this.Screen().TextHeight(text, font) || 12;
+        // return 12; // TODO
     }
     TextWidth(text: TCHAR[], font: PegFont): SIGNED {
-        // return Screen()->TextWidth(Text, Font);
-        return 256; // TODO
+        return this.Screen().TextWidth(text, font) || 256
+        // return 256; // TODO
     }
     Invalidate(rect?: PegRect) {
         if (rect) {
-            // Screen()->Invalidate(Rect);
+            this.Screen().Invalidate(rect);
         } else {
-            // Screen()->Invalidate(this.mClient);
+            this.Screen().Invalidate(this.mClient);
         }
     }
     SetPointerType(bType: UCHAR) {
-        // Screen()->SetPointerType(bType);
+        this.Screen().SetPointerType(bType);
     }
-    Circle(xCenter: SIGNED, yCenter: SIGNED, radius: SIGNED, color: PegColor, iWidth: SIGNED) {
-        // Screen()->Circle(this, xCenter, yCenter, radius, color, iWidth);
+    Circle(xCenter: SIGNED, yCenter: SIGNED, radius: SIGNED, color: PegColor, iWidth?: SIGNED) {
+        if (!iWidth) iWidth = 0 
+        this.Screen().Circle(xCenter, yCenter, radius, color, iWidth);
     }
 
 

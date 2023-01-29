@@ -1,7 +1,8 @@
 import type { BOOL, DWORD, UCHAR, WORD } from "../native/windows";
 import { PegThing } from "./pthing";
-import { CF_FILL, FF_MASK, FF_NONE, FF_RAISED, FF_RECESSED, FF_THICK, FF_THIN, PCI_NORMAL, PCLR_BORDER, PCLR_CLIENT, PCLR_DIALOG, PCLR_HIGHLIGHT, PCLR_LOWLIGHT, PCLR_SHADOW, PegColor, PegPoint, PegRect, PSF_MOVEABLE, PSF_SIZEABLE, PSF_TAB_STOP, PSF_VIEWPORT, TYPE_WINDOW, type PegBitmap, type SIGNED } from "./pegtypes";
+import { CF_FILL, FF_MASK, FF_NONE, FF_RAISED, FF_RECESSED, FF_THICK, FF_THIN, PCI_NORMAL, PCLR_BORDER, PCLR_CLIENT, PCLR_DIALOG, PCLR_HIGHLIGHT, PCLR_LOWLIGHT, PCLR_SHADOW, PegColor, PegPoint, PegRect, PSF_ACCEPTS_FOCUS, PSF_CURRENT, PSF_MOVEABLE, PSF_NONCLIENT, PSF_SIZEABLE, PSF_TAB_STOP, PSF_VIEWPORT, PSF_VISIBLE, TYPE_WINDOW, type PegBitmap, type SIGNED } from "./pegtypes";
 import { PPT_NORMAL } from "./pscreen";
+import type { PegMessage } from "./pmessage";
 
 // Move Types. A re-size is treated by Peg as simply a different type of move.
 const PMM_MOVEALL =         0x80
@@ -69,7 +70,28 @@ export class PegWindow extends PegThing {
         this.InitClient()
     }
     
-    Excecute(): SIGNED {
+    Execute(): SIGNED {
+        console.debug("PegWindow::Execute")
+
+        let pSend: PegMessage
+
+        if (!this.StatusIs(PSF_VISIBLE)) {
+            this.Presentation().Add(this)
+        }
+
+        while (true) {
+            this.MessageQueue().Pop(pSend)
+
+            switch (pSend.wType) {
+                // TODO
+                default:
+                    let iReturn = this.Presentation().DispatchMessage(this, pSend)
+                    if (iReturn) {
+                        return iReturn
+                    }
+            }
+        }
+
         return 0
     }
 
@@ -176,7 +198,30 @@ export class PegWindow extends PegThing {
         }
     }
 
+    Add(what: PegThing, bDraw?: boolean): void {
+        let bSetFocus: BOOL = true
+
+        if (what.StatusIs(PSF_VISIBLE)) {
+            bSetFocus = false
+        }
+
+        if (what != this.First()) {
+            super.Add(what, bDraw)
+
+            if (bSetFocus) {
+                if (this.StatusIs(PSF_VISIBLE) && this.StatusIs(PSF_CURRENT) && what.StatusIs(PSF_ACCEPTS_FOCUS) && !what.StatusIs(PSF_NONCLIENT)) {
+                    this.Presentation().MoveFocusTree(what)
+                }
+            }
+        }
+    }
+
     Draw() {
         console.log("PegWindow::Draw")
+        this.BeginDraw()
+        this.DrawFrame()
+        this.DrawChildren()
+
+        this.EndDraw()
     }
 }

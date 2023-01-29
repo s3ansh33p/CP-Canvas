@@ -1,5 +1,5 @@
 import type { int16_t } from "../native/native";
-import type { BOOL, DWORD, UCHAR, WORD } from "../native/windows";
+import type { BOOL, DWORD, LONG, UCHAR, WORD } from "../native/windows";
 
 // Bare types
 export type SIGNED = int16_t
@@ -73,6 +73,71 @@ export const FF_THICK: WORD     = 0x0010	// thick
 export const FF_MASK: WORD      = 0x001f	// mask
 export const FF_RAISED: WORD    = FF_THIN	// raised
 export const FF_RECESSED: WORD  = FF_THIN	// recessed
+
+
+// Text Justification Style:
+
+export const TJ_RIGHT: WORD =           0x0020
+export const TJ_LEFT: WORD =            0x0040
+export const TJ_CENTER: WORD =          0x0080
+export const TJ_MASK: WORD =            0x00E0
+
+// Title Style:
+
+export const TF_NONE: WORD      =       0x0000
+export const TF_SYSBUTTON: WORD =       0x0200
+export const TF_MINMAXBUTTON: WORD =    0x0400
+export const TF_CLOSEBUTTON: WORD =     0x0800
+
+// Text Thing Copy Flag
+
+export const TT_COPY: WORD =            0x2000
+
+// List Style
+
+export const LS_WRAP_SELECT: WORD =     0x2000
+
+// Button Style:
+
+export const BF_REPEAT: WORD =          0x0002
+export const BF_SELECTED: WORD =        0x0004
+export const BF_DOWNACTION: WORD =      0x0008
+export const BF_FULLBORDER: WORD =      0x0010
+
+// menu button style
+
+export const BF_SEPARATOR: WORD =       0x0100
+export const BF_CHECKABLE: WORD =       0x0200
+export const BF_CHECKED: WORD =         0x0400
+export const BF_DOTABLE: WORD =         0x0800
+export const BF_DOTTED: WORD =          0x1000
+
+// Decorated Button styles. 
+
+export const BF_ORIENT_TR: WORD =       0x0100
+export const BF_ORIENT_BR: WORD =       0x0200
+
+// Edit Style:
+
+export const EF_EDIT: WORD =            0x0100
+export const EF_PARTIALROW: WORD =      0x0200
+export const EF_WRAP: WORD =            0x0400
+export const EF_FULL_SELECT: WORD =     0x0800
+
+// Message Window Style:
+
+export const MW_OK: WORD =              0x0020
+export const MW_YES: WORD =             0x0040
+export const MW_NO: WORD =              0x0080
+export const MW_ABORT: WORD =           0x0100
+export const MW_RETRY: WORD =           0x0200
+export const MW_CANCEL: WORD =          0x0400
+
+// Miscellaneous Appearance Style:
+
+export const AF_TRANSPARENT: WORD =        0x4000
+export const AF_ENABLED: WORD =            0x8000
+
 
 // System Status flags common to all object types
 export const PSF_VISIBLE: WORD =           0x0001
@@ -163,7 +228,15 @@ export class PegRect {
         this.wBottom = y2;
     }
     
+
+    Width(): SIGNED {
+        return (this.wRight - this.wLeft + 1)
+    }
     
+    Height(): SIGNED {
+        return (this.wBottom - this.wTop + 1)
+    }
+
     /// Set using two PegPoint objects
     static Set(ul: PegPoint , br: PegPoint );
     /// Set all four (x,y) components
@@ -187,6 +260,16 @@ export class PegRect {
             );
         }
     }
+
+    /// Set all four (x,y) components
+    Set(x1: SIGNED, y1: SIGNED, x2: SIGNED, y2: SIGNED) {
+        this.wLeft = x1;
+        this.wTop = y1;
+        this.wRight = x2;
+        this.wBottom = y2;
+    }
+
+
 
     // operator &
     and(rect: PegRect): PegRect {
@@ -418,6 +501,8 @@ export const IS_SPRITE = (a: PegBitmap) => (a.uFlags & BMF_SPRITE)
 export const tstrlen = (s?: TCHAR[]) => { return (Array.isArray(s) && s.length) || 0 }
 export const tstrcpy = (buff: TCHAR[], base: TCHAR[]) => { return (Array.isArray(base) && [...base, ...buff.slice(tstrlen(base))]) || base }
 
+export const _s = (s: string) => s.split('').map(e => e.charCodeAt(0))
+
 
 // PEG signal definitions. PegBaseSignals are supported by all objects. The
 // remaining signals are only supported by the object type indicated in the
@@ -449,4 +534,58 @@ export enum PegButtonSignals {
 export enum PegScrollSignals {
     PSF_SCROLL_CHANGE = 8,  // sent by non-client PegScroll derived objects
     PSF_SLIDER_CHANGE       // sent by PegSlider derived objects
+}
+
+export class PegCapture {
+
+    private mRect: PegRect
+    private mBitmap: PegBitmap
+    private mlDataSize: LONG
+    private mbValid: BOOL
+
+
+    constructor() {
+        this.mRect.Set(0, 0, 0, 0);
+        this.mBitmap.pStart = 0;
+        this.mbValid = false;
+        this.mlDataSize = 0;
+    }
+
+
+    Pos(): PegRect { return this.mRect}
+    
+    Point(): PegPoint {
+        return new PegPoint(this.mRect.wLeft, this.mRect.wTop)
+    }
+
+
+    DataSize(): LONG {
+        return this.mlDataSize
+    }
+
+
+    SetPos(rect: PegRect): void {
+        this.mRect = rect;
+        this.mBitmap.wWidth = rect.Width();
+        this.mBitmap.wHeight = rect.Height();
+    }
+
+    IsValid(): BOOL {
+        return this.mbValid
+    }
+
+    SetValid(bValid: BOOL): void { this.mbValid = bValid }
+    Realloc(lSize: LONG): void {}
+    Reset(): void {}
+
+    MoveTo(iLeft: SIGNED, iTop: SIGNED): void {}
+
+    Shift(xShift: SIGNED, yShift: SIGNED): void {
+        this.mRect.Shift(xShift, yShift)
+    }
+    
+    Bitmap(): PegBitmap {
+        return this.mBitmap
+    }
+
 }

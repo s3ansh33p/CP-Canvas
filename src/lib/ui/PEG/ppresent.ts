@@ -1,6 +1,6 @@
 import { prevent_default } from "svelte/internal";
 import type { BOOL, UCHAR, WORD } from "../native/windows";
-import { FF_NONE, HAS_TRANS, PCI_NORMAL, PCLR_DESKTOP, PegBaseSignals, PegPoint, PSF_ACCEPTS_FOCUS, PSF_CURRENT, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, TYPE_WINDOW, type PegBitmap, type PegRect, type SIGNED, type TCHAR } from "./pegtypes";
+import { FF_NONE, HAS_TRANS, PCI_NORMAL, PCLR_DESKTOP, PegBaseSignals, PegPoint, PSF_ACCEPTS_FOCUS, PSF_CURRENT, PSF_OWNS_POINTER, PSF_SELECTABLE, PSF_VIEWPORT, PSF_VISIBLE, TYPE_WINDOW, type PegBitmap, type PegRect, type SIGNED, type TCHAR } from "./pegtypes";
 import { FIRST_USER_MESSAGE, PegMessage, PegSystemMessage } from "./pmessage";
 import type { PegThing } from "./pthing";
 import { PegWindow } from "./pwindow";
@@ -26,6 +26,7 @@ export class PegPresentationManager extends PegWindow {
         this.mpScratchPad = null
         this.RemoveStatus(0xffff)
 
+        // I am ALLWAYS in the current branch
         this.AddStatus(PSF_VIEWPORT|PSF_CURRENT|PSF_VISIBLE|PSF_ACCEPTS_FOCUS)
 
         this.muColors[PCI_NORMAL] = PCLR_DESKTOP
@@ -131,11 +132,11 @@ export class PegPresentationManager extends PegWindow {
         }
     }
 
-    Excecute(): SIGNED {
+    Execute(): SIGNED {
         let pSend: PegMessage = new PegMessage() 
         while(true) {
-            let rSend = this.MessageQueue().Pop(pSend)
-            console.log(rSend, pSend)
+            this.MessageQueue().Pop(pSend)
+            console.log(pSend)
 
             let iStatus: SIGNED = this.DispatchMessage(this, pSend)
 
@@ -266,5 +267,81 @@ export class PegPresentationManager extends PegWindow {
         }
 
         return 0
+    }
+
+    ReleasePointer(who?: PegThing): void {
+        if (!who) return
+
+        if (who.StatusIs(PSF_OWNS_POINTER)) {
+            who.RemoveStatus(PSF_OWNS_POINTER)
+
+            if (this.muPointerCaptures > 0) {
+                for (let uLoop = this.muPointerCaptures - 1; uLoop >= 0; uLoop--) {
+                    if (this.mpPointerOwners[uLoop] == who) {
+                        for (let uLoopP = uLoop; uLoopP < this.muPointerCaptures - 1; uLoopP++) {
+                            this.mpPointerOwners[uLoopP] = this.mpPointerOwners[uLoopP + 1]
+                        }
+                        this.muPointerCaptures--
+                        break
+                    }
+                    
+                }
+
+                if (this.muPointerCaptures) {
+                    this.mpInputThing = this.mpPointerOwners[this.muPointerCaptures - 1]
+                    this.mpInputThing.AddStatus(PSF_OWNS_POINTER)
+                } else {
+                    this.mpInputThing = this.mpDefaultInputThing
+                }
+            } else {
+                this.mpInputThing = this.mpDefaultInputThing
+            }
+        }
+    }
+
+    GetPointerOwner(): PegThing {
+        if (this.muPointerCaptures) {
+            return this.muPointerCaptures[this.muPointerCaptures - 1]
+        }
+        return null
+    }
+
+    NullInput(current: PegThing) {
+        let pTest: PegThing
+
+        // Check to see if the thing being removed is or is a parent of my
+        // private "last pointer over" thing:
+
+        if (this.mpLastPointerOver) {
+            pTest = this.mpLastPointerOver
+
+            while (pTest && pTest != current) {
+                pTest = pTest.Parent()
+            }
+
+            if (pTest == current) {
+                this.mpLastPointerOver = null
+            }
+        }
+
+        // Check to see if the thing being removed is or is a parent of 
+        // my private "Input Thing":
+
+        if (this.mpInputThing) {
+            pTest = this.mpInputThing
+
+            while (pTest && pTest != current) {
+                pTest = pTest.Parent()
+            }
+
+            if (pTest == current) {
+                if (this.mpInputThing.StatusIs(PSF_OWNS_POINTER)) {
+                    this.ReleasePointer(this.mpInputThing)
+                }
+                this.mpInputThing = null
+            }
+        }
+
+
     }
 }

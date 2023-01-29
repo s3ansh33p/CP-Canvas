@@ -25,15 +25,37 @@ export const IS_ALIASED = (a: PegFont) =>  (a.uType & PFT_ALIASED)
 
 // default fonts
 // SysFont, MenuFont, TitleFont (defaults to SysFont)
+
+export enum PEG_DEFAULT_FONT_INDEX {
+    PEG_DEFAULT_FONT = 0,           // default = SysFont
+    PEG_TITLE_FONT,                 // default = SysFont
+    PEG_MENU_FONT,                  // default = MenuFont
+    PEG_TBUTTON_FONT,               // default = MenuFont
+    PEG_RBUTTON_FONT,               // default = MenuFont
+    PEG_CHECKBOX_FONT,              // default = MenuFont
+    PEG_PROMPT_FONT,                // default = SysFont
+    PEG_STRING_FONT,                // default = SysFont
+    PEG_TEXTBOX_FONT,               //
+    PEG_GROUP_FONT,
+    PEG_ICON_FONT,
+    PEG_CELL_FONT,
+    PEG_HEADER_FONT,
+    PEG_TAB_FONT,
+    PEG_MESGWIN_FONT,
+    PEG_TREEVIEW_FONT,
+    PEG_NUMBER_OF_DEFAULT_FONTS
+}
+
+
 export class PegTextThing{
 
-    protected mpFont: PegFont
-    protected mpText: TCHAR[]
-    protected mwStrLen: WORD
-    protected mwBufferLen: WORD
-    protected mbCopy: UCHAR
+    mpFont: PegFont
+    mpText: TCHAR[]
+    mwStrLen: WORD
+    mwBufferLen: WORD
+    mbCopy: UCHAR
 
-    static mDefaultFonts: PegFont[]
+    static mDefaultFonts: PegFont[] = Array(PEG_DEFAULT_FONT_INDEX.PEG_NUMBER_OF_DEFAULT_FONTS)
 
     // PegTextThing(const TCHAR *Text, WORD wCopy = 0, UCHAR uFontIndex = 0);
     // PegTextThing(WORD wCopy = 0, UCHAR uFontIndex = 0);
@@ -116,6 +138,10 @@ export class PegTextThing{
         }
     }
 
+    DataGet(): TCHAR[] {
+        return this.mpText;
+    }
+
     // Can be used to turn on copy mode after construction. Copy mode cannot be turned off after it is turned on.
     SetCopyMode() {
         if (this.mbCopy) return
@@ -128,5 +154,14 @@ export class PegTextThing{
             
             this.DataSet(pTemp)
         }
+    }
+
+    static SetDefaultFont(uIndex: UCHAR, pFont: PegFont): void
+    {
+        PegTextThing.mDefaultFonts[uIndex] = pFont;
+    }
+
+    static GetDefaultFont(uIndex: UCHAR): PegFont {
+        return PegTextThing.mDefaultFonts[uIndex];
     }
 }
