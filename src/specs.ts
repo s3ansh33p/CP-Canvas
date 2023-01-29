@@ -43,6 +43,14 @@ export const vram = writable(new Uint16Array(WIDTH * HEIGHT));
 // VRAM Backup Store
 export const vramBackup = writable(new Uint16Array(WIDTH * HEIGHT));
 
+// Array of json objects, with the following properties:
+// - name: String
+// - data: Uint8Array
+// custom functionality that is not in the classpad normally
+export const fontCache = writable([]);
+export const textureCache = writable([]);
+
+
 // A more convenient store for grabbing all game props
 export const props = deriveObject({
 	context,

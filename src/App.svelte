@@ -5,7 +5,7 @@
 	import { keyEventHandler } from "./lib/helpers";
 	import { onMount } from "svelte";
   	import { WinMain } from "./lib/ui/basic";
-	import { test_custom_fonts, test_virtual_keyboard } from "./lib/textures/test";
+	import { test_custom_fonts, test_custom_textures, test_virtual_keyboard } from "./lib/textures/test";
 
 	onMount(() => {
 		clearScreen();
@@ -109,6 +109,7 @@
 			<button on:click={Debug_SelectMode1}>Debug_SelectMode1</button>
 			<button on:click={WinMain}>Test_UI</button>
 			<button on:click={test_custom_fonts}>Test Custom Fonts</button>
+			<button on:click={test_custom_textures}>Test Custom Textures</button>
 			<button on:click={test_virtual_keyboard}>Test Virtual Keyboard</button>
 		</div>
 

@@ -1,7 +1,5 @@
-export let font_7x8 = "AAcACAAAAAAAAAAQIECBAAQAKFAAAAAAAEX9EiRf0QAQ/gPgP4QAQoggggihACCggqiSmIAQIAAAAAAACCCBAgICACAgIECCCAAoIKAAAAAAACBD4QIAAAAAAAAABBgAAAPgAAAAAAAAAAAEAAIIIIIIIAA4iiyaKI4AEGBAgQI/gH0ECGcQP4B9BAngMF8AHEkUL+CBAP8D8BAwXwA8ggfoMF8A/gQQQIIEAH0GC+gwXwB9BgvwIJ4AAABAAAAEAAAAQAAABBgIIIICAgIAAAHwB8AAACAgICCCCAA8hAjhAAQAfQZtW/AfADiKDB/wYID9Bg/oMH8AfQYECBBfAPkKDBgwvgD/AgfIED+A/wIHyBAgAH0GBPgwX4CDBg/4MGCA/iBAgQI/gH4ECBAwXwCDCieIkKCAgQIECBA/gIOOrJgwYICDhoyYsOCAfQYMGDBfAP0GDB/QIAB9BgyYsJ6A/QYP6DBggH0GA+AwXwD+IECBAgQAgwYMGDBfAIMFEiKFBACDBgyauOCAgoiggoiggIKIoIECBAD+CCCCCD+AOECBAgQOAICAgICAgIA4ECBAgQ4AEFEQAAAAAAAAAAAAHwBgIAAAAAAAAAHwF/BfgIEC9hgwfwAAAfwIEB+AAgX8GDBfgAAB9B/wH4AeQ/kCBAgAAAH8GC/AvoEC9hgwYIAQAcCBAh8ACADgQIECOIECDC+QoIBwIECBAh8AAAP0mTJkgAAC9hgwYIAAAfQYMF8AAAL2GD+gQAAB/BgvwIEAAvYYECAAAAH8B8B/AABD+QIEB4AAAgwYMF+AAAIMFEUEAAACDJkyX4AAAgojiKCAAAIMGC/AvgAD+BfQP4AIIEEBAgIAECBAgQIEACAgQEECCAAAAAMJIYAAAA==";
-export let font_5x6 = "AAUABgAAAACEIAgFKAAAFfV9QCOYZxEiIiQMIvLoCEAAABEIQQEEIRAFEUAACE+QgAAAAhAA+AAAAAAgAiIiAHTrlwCMIT4PB/D4PBcHwDKl8QPw+HwHQ9FwPhEQgHRdFwHReFwAEAAgAEAAhBEQQQAfB8AEEERAHRMAgPxvD4HRj+IPR9HwHwhB4PRjHwPw9D4Pw9CAHwnF4Ix/GIPkIT4HhDFwIy5KIIQhD4I7rGII5rOIHRjFwPR9CAHRrJoPR9GIHw+HwPkIQgIxjFwIxUogIxruIIqIqIIqIQgPiIj4DEIQwIIIIIGEIRgCKAAAAAAD4EEAAAAOlJ4IejHwAPhB4AvjF4AO/B4Do+hAAPi8LoejGICAYRwBAMITIR9GIGEIRwAerWoAejGIAOjFwAej6EAPi8IQPhCAAHITgEfQg4ARjF4ARiogAVrV4ARdGIARi8LgcIQ4BEYQQCEIQgEEMRAAAbYAAA==";
-// upscaled 2x version for testing
-export let font_7x8_up2x = "AA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAwAMADAAwAMADAAwAMADAAAAAADAAwAAAAADMAzAMwDMAAAAAAAAAAAAAAAAAAAAAAAAAAAADAwwM////8wMMDDAwwMMDDAz////zAwwMAAAAADAAwD/8//wAMAA/8P/AAMAD//P/wDAAwAAAAAMAzAMwMMDADAAwAwAMAMADADAwwMwDMAwAAAAAwAMAMwDMAMADADMwzMwMMDDDMwzDwM8DAAAAADAAwAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMADADAAwAwAMADAAwAMADAAMADAAMADAAAAAAwAMAAwAMAAwAMADAAwAMADADAAwAwAMAAAAAAMwDMAMADADMAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAwAMADAP/D/wDAAwAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMADADwA8AAAAAAAAAAAAAAA/8P/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAMAAAAAAAMADADAAwAwAMAMADADAAwAwAMAMADAAAAAAAPwD8DAwwMwM8DPDDww8wPMDMDDAwPwD8AAAAAAwAMAPADwAMADAAwAMADAAwAMADA////8AAAAD/w/8wA8AMADAAwDwA8PwD8DAAwAP////AAAAA/8P/MAPADAAwAMP8D/AAMADwA8AM/8P/AAAAAA/APwMMDDDAwwMwDMAz////wAwAMADAAwAAAAP////wAMAD/8//AAMADAAwAPADwAz/w/8AAAAAP8D/DAAwAwAMAD/8//MAPADwA8AM/8P/AAAAA////8ADAAwAwAMAMADAAwAMAMADAAwAMAAAAAD/w/8wA8APADwAz/w/8wA8APADwAz/w/8AAAAA/8P/MAPADwA8AM//P/wAMADADAAw/wP8AAAAAAAAAAAAAAAMADAAAAAAAAAAAAAAAAwAMAAAAAAAAAAAAAAADAAwAAAAAAAAAAAAAAAMADADwA8AAwAMAMADADAAwAwAMAAwAMAAwAMAAwAMAAAAAAAAAAAAAAD/w/8AAAAA/8P/AAAAAAAAAAAAAAAwAMAAwAMAAwAMAAwAMAMADADAAwAwAMAAAAAAP8D/DAMwDAAwAMD8A/AMADAAAAAADAAwAAAAAP/D/zADwA8PPDzzM8zPP/z/8ADAAP/D/wAAAAA/APwMDDAzADwA8APAD/////ADwA8APADAAAAD/8//MAPADwA8AP/8//MAPADwA8AP/8//AAAAAP/D/zADwA8ADAAwAMADAAwAMAPADP/D/wAAAAP/D/wwDMAzADwA8APADwA8APAMwDP/D/wAAAAD////8ADAAwAMAD/w/8MADAAwAMAD////wAAAA/////AAwAMADAA/8P/DAAwAMADAAwAMAAAAAAD/w/8wA8APAAwAMP/D/wA8APADwAz/8//AAAADADwA8APADwA8AP////8APADwA8APADwAwAAAA////8DAAwAMADAAwAMADAAwAMADA////8AAAAD/8//AAwAMADAAwAMADAAwAPADwAz/w/8AAAADADwA8AzAMwMMDD/A/wMDDAwwDMAzADwAwAAAAwAMADAAwAMADAAwAMADAAwAMADAA////8AAAAMAPAD8D/A/MzzM8MPDDwA8APADwA8APADAAAADADwA/APwDzA8wPDDww8DPAzwD8A/ADwAwAAAAP/D/zADwA8APADwA8APADwA8APADP/D/wAAAAP/z/8wA8APADwA8APAD//P/zAAwAMADAAAAAAA/8P/MAPADwA8APDDww8DPAzwDMAw/zP8wAAAA//P/zADwA8APAD//P/zADwA8APADwA8AMAAAAD/w/8wA8APAAwAD/w/8AAwAPADwAz/w/8AAAAD////wMADAAwAMADAAwAMADAAwAMADAAwAAAAAwA8APADwA8APADwA8APADwA8APADP/D/wAAAAMAPADwA8AMwMMDDAwwMDMAzAMwDMAMADAAAAADADwA8APADwA8APDDww8zPMz8D/A/ADwAwAAAAwA8AMwMMDAzAMwAwAMAMwDMDAwwMwA8AMAAAAMAPADMDDAwMwDMAMADAAwAMADAAwAMADAAAAAD////wAwAMAMADADAAwAwAMAMADAD////wAAAAD8A/AMADAAwAMADAAwAMADAAwAMAD8A/AAAAAMADAAMADAAMADAAMADAAMADAAMADAAMADAAAAAPwD8ADAAwAMADAAwAMADAAwAMADAPwD8AAAAAAwAMAMwDMDAwwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/w/8AAAAA8APAAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/w/8AAwAM//P/8APADP/z/8AAAAMADAAwAMADP8z/PAPwDwA8APADwA//z/8AAAAAAAAAAAAAAP/z//AAwAMADAAwAMAA//P/wAAAAAAwAMADAAz/8//wA8APADwA8APADP/z/8AAAAAAAAAAAAAA/8P/MAPAD/////AAwAD/8//AAAAAD/A/wwAMA////8MADAAwAMADAAwAMADAAAAAAAAAAAAAAAD/8//wA8APADwAz/8//AAwAM/8P/MADAAwAMADP8z/PAPwDwA8APADwA8APADAAAAADAAwAAAAAPwD8ADAAwAMADAAwAMA/8P/AAAAAAMADAAAAAA/APwAMADAAwAMADAAwAMADA/APwMADAAwAMADADwA8AzAM/8P/DAMwDMAPADAAAAA/APwAMADAAwAMADAAwAMADAAwAMA/8P/AAAAAAAAAAAAAAP/z/8ww8MPDDww8MPDDww8MMAAAAAAAAAAAAADP8z/PAPwDwA8APADwA8APADAAAAAAAAAAAAAAP/D/zADwA8APADwA8AM/8P/AAAAAAAAAAAAAAM/zP88A/APADwA//z/8wAMADAAwAAAAAAAAAAA//P/8APADwA8AM//P/wAMADAAwAMAAAAAAAAAz/M/zwD8A8ADAAwAMADAAwAAAAAAAAAAAAAAAD/8//wAMAA/8P/AAMAD//P/wAAAAAAAAADAAwD////wwAMADAAwAMADAAP8D/AAAAAAAAAAAAAAwA8APADwA8APADwA8AM//P/wAAAAAAAAAAAAAMAPADwA8AMwMMDAzAMwAwAMAAAAAAAAAAAAAADADwA8MPDDww8MPDDwwz/8//AAAAAAAAAAAAAAwA8AMwMMDA/APwMDDAzADwAwAAAAAAAAAAAAAMAPADwA8APADwAz/8//AAwAM/8P/AAAAAAAAAD////wAMADP/D/zAAwAP////AAAAAAwAMAMADAAwAMAMADAAMADAAwAMAAwAMAAAAAAwAMADAAwAMADAAwAMADAAwAMADAAwAMAAAAAAwAMAAwAMADAAwADAAwAwAMADAAwAwAMAAAAAAAAAAAAAAAAAAAA8APAMMPDDAPADwAAAAAAAAAAA==";
+import { fontCache, textureCache } from "../../specs";
+import { get } from 'svelte/store';
 
 // decode base64 string to Uint8Array
 export function decodeBase64(base64: string): Uint8Array {
@@ -13,3 +11,79 @@ export function decodeBase64(base64: string): Uint8Array {
     return bytes;
 }
 
+// make a get request to /<path> and return the response as a Uint8Array
+export async function getBinary(path: string): Promise<Uint8Array | null> {
+    // before fetching, check if the file is already in the cache
+    const cachedData = getBinaryFromCache(path);
+    if (cachedData) {
+        return cachedData;
+    }
+    const response = await fetch(path);
+    if (response.ok) {
+        // readAsDataURL() returns a base64 string, so we need to decode it
+        const reader = new FileReader();
+        const data = await new Promise<string>( async (resolve, reject) => {
+            reader.addEventListener("load", () => {
+                // check the content type
+                if (reader.result?.toString().startsWith("data:application/octet-stream;base64,")) {
+                    resolve(reader.result as string);
+                } else {
+                    reject(new Error(path + " is not a binary file or does not exist"));
+                }
+            });
+            reader.addEventListener("error", () => {
+                reject(reader.error);
+            });
+            reader.readAsDataURL(await response.blob());
+        });
+        // slice off the "data:application/octet-stream;base64," part
+        const dataToCache = decodeBase64(data.slice(data.indexOf(",") + 1));
+        addBinaryToCache(path, dataToCache);
+        return dataToCache;
+    } else {
+        return null;
+    }
+}
+
+export async function getFontBinary(path: string): Promise<Uint8Array | null> {
+    return getBinary("/fnt/" + path);
+}
+
+export async function getTextureBinary(path: string): Promise<Uint8Array | null> {
+    return getBinary("/" + path);
+}
+
+function addBinaryToCache(path: string, data: Uint8Array) {
+    if (path.startsWith("/fnt/")) {
+        fontCache.update(cache => {
+            cache.push({ name: path, data });
+            return cache;
+        });
+    } else {
+        textureCache.update(cache => {
+            cache.push({ name: path, data });
+            return cache;
+        });
+    }
+}
+
+function getBinaryFromCache(path: string): Uint8Array | null {
+    if (path.startsWith("/fnt/")) {
+        const cache = get(fontCache);
+        for (const entry of cache) {
+            if (entry.name === path) {
+                console.log("Cache hit for " + path);
+                return entry.data;
+            }
+        }
+    } else {
+        const cache = get(textureCache);
+        for (const entry of cache) {
+            if (entry.name === path) {
+                console.log("Cache hit for " + path);
+                return entry.data;
+            }
+        }
+    }
+    return null;
+}

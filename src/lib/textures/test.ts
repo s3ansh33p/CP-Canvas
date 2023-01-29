@@ -1,12 +1,12 @@
 import { charmap } from "../../common/font";
 import { WIDTH } from "../../specs";
 import { color, fillScreen, LCD_Refresh, line } from "../drawing";
-import { DRAW_FONT, LOAD_FONT_PTR } from "./draw_functions";
+import { DRAW_FONT, LOAD_FONT_PTR, LOAD_TEXTURE_PTR, DRAW_TEXTURE, DRAW_TEXTURE_FRAME } from "./draw_functions";
 
-export function test_custom_fonts() {
+export async function test_custom_fonts() {
     // LOAD_FONT_PTR("font_7x8", pointer); - c++ version
-    let fontp = LOAD_FONT_PTR("font_7x8");
-    let fontp2 = LOAD_FONT_PTR("font_5x6");
+    let fontp = await LOAD_FONT_PTR("font_7x8");
+    let fontp2 = await LOAD_FONT_PTR("font_5x6");
     DRAW_FONT(fontp, charmap.slice(0,36), 0, 70, [255, 255, 255], 0);
     DRAW_FONT(fontp, charmap.slice(36,72), 0, 80, [255, 255, 255], 0);
     DRAW_FONT(fontp, charmap.slice(72), 0, 90, [255, 255, 255], 0); 
@@ -17,12 +17,27 @@ export function test_custom_fonts() {
     LCD_Refresh();
 }
 
-export function test_virtual_keyboard() {
+export async function test_custom_textures() {
+    fillScreen([0, 0, 0]);
+    console.log("Calling test_custom_textures");
+    let fontp = await LOAD_FONT_PTR("5x6");
+    DRAW_FONT(fontp, "Hello World", 30, 200, [255, 255, 255], 0);
+
+    LCD_Refresh();
+
+    let texp = await LOAD_TEXTURE_PTR("p_walk0");
+    DRAW_TEXTURE(texp, 50, 50);
+
+    LCD_Refresh();
+
+}
+
+export async function test_virtual_keyboard() {
     // set to black
     fillScreen([0, 0, 0]);
     // create a virtual keyboard
-    let fontp = LOAD_FONT_PTR("font_7x8_up2x");
-    let fontp2 = LOAD_FONT_PTR("font_5x6");
+    let fontp = await LOAD_FONT_PTR("font_7x8_up2x");
+    let fontp2 = await LOAD_FONT_PTR("font_5x6");
     // qwertyuiop
     const line1 = "1234567890";
     const line2 = "azertyuiop";

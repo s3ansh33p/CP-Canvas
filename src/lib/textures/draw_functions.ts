@@ -1,29 +1,44 @@
 // see draw_functions.hpp by InterChan
 import { setPixel, INT_RGB565TO888, type RGBColor } from '../drawing'
-import { decodeBase64, font_7x8, font_5x6, font_7x8_up2x } from './loader';
+import { getFontBinary, getTextureBinary } from './loader';
 import { SIN } from './trig'
 
-// export const LOAD_TEXTURE_PTR = (path: string) => load_texture(path)
+export const LOAD_TEXTURE_PTR = (path: string) => load_texture(path)
 export const LOAD_FONT_PTR = (path: string) => load_font(path)
-// export const DRAW_TEXTURE = (texturepointer: Uint16Array, x: number, y: number) => draw_texture_shader(texturepointer, x, y, 1, 0)
-// export const DRAW_TEXTURE_FRAME = (texturepointer: Uint16Array, x: number, y: number, frame: number) => draw_texture_shader(texturepointer, x, y, 2, frame)
+export const DRAW_TEXTURE = (texturepointer: Uint16Array, x: number, y: number) => draw_texture_shader(texturepointer, x, y, 1, 0)
+export const DRAW_TEXTURE_FRAME = (texturepointer: Uint16Array, x: number, y: number, frame: number) => draw_texture_shader(texturepointer, x, y, 2, frame)
 export const DRAW_FONT = (fontpointer: Uint8Array, text: string, x: number, y: number, color: RGBColor, wrapLength: number) => draw_font_shader(fontpointer, text, x, y, color, wrapLength, 1, 0, 0)
 
 function uint8to16(highByte: number, lowByte: number): number {
     return (highByte << 8) | lowByte;
 }
 
-// TODO: replicate file system functions and create a very basic file system in the browser
-function load_font(fontpath: string): Uint8Array {
-    // TODO: implement file system
-    if (fontpath == "font_7x8") {
-        return decodeBase64(font_7x8);
-    } else if (fontpath == "font_5x6") {
-        return decodeBase64(font_5x6);
-    } else if (fontpath == "font_7x8_up2x") {
-        return decodeBase64(font_7x8_up2x);
+async function load_font(fontpath: string): Promise<Uint8Array> {
+    return await getFontBinary(fontpath);
+}
+
+async function load_texture(texturepath: string): Promise<Uint16Array> {
+    const texture = await getTextureBinary(texturepath);
+    // convert to 16-bit
+    const texture16 = new Uint16Array(texture.length / 2);
+    for (let i = 0; i < texture.length; i += 2) {
+        texture16[i / 2] = uint8to16(texture[i], texture[i + 1]);
     }
-    return new Uint8Array(0);
+    return texture16;
+}
+// http://127.0.0.1:5173/
+
+function draw_texture_shader(texturepointer: Uint16Array, x: number, y: number, shaderID: number, shaderArg: number) {
+    let w = texturepointer[0];
+    let h = texturepointer[1];
+    let k = 2;
+    console.log(texturepointer[2], INT_RGB565TO888(texturepointer[2]));
+    for (let j = 0; j < h; j++) {
+        for (let i = 0; i < w; i++) {
+            shader(x, y, w, h, i, j, INT_RGB565TO888(texturepointer[k]), shaderID, shaderArg);
+            k++;
+        }
+    }
 }
 
 const CHAR_SPACING = 1;
@@ -61,7 +76,11 @@ function draw_font_shader(fontpointer: Uint8Array, text: string, x: number, y: n
     }
 }
 
-const TRANSPARENCY_COLOR: RGBColor = [255, 0, 255] // or #0xF81F
+const TRANSPARENCY_COLOR: RGBColor = [248, 0, 248] // or #0xF81F - gets converted to 248 not 255
+// function to check if a pixel is transparent
+function isTransparent(color: RGBColor) {
+    return color[0] == TRANSPARENCY_COLOR[0] && color[1] == TRANSPARENCY_COLOR[1] && color[2] == TRANSPARENCY_COLOR[2];
+}
 
 // color is in 16tbit RGB565 format
 function shader(x: number, y: number, w: number, h: number, i: number, j: number, color: RGBColor, shaderID: number, shaderArg: number) {
@@ -72,7 +91,7 @@ function shader(x: number, y: number, w: number, h: number, i: number, j: number
             break;
         case 1:
             // cutout (default shader, used by DRAW_TEXTURE)
-            if (color != TRANSPARENCY_COLOR) {
+            if (!isTransparent(color)) {
                 setPixel(x + i, y + j, color);
             }
             break;
@@ -101,7 +120,7 @@ function shader(x: number, y: number, w: number, h: number, i: number, j: number
             break;
         case 5:
             // drop shadow for each pixel with color shaderArg
-            if (color != TRANSPARENCY_COLOR) {
+            if (!isTransparent(color)) {
                 setPixel(x + i, y + j, color);
                 // setPixel(x + i + 1, y + j + 1, shaderArg);
                 // convert shaderArg to 16bit RGB565
