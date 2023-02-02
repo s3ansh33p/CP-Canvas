@@ -31,3 +31,12 @@ Choose "make public" to your app port
 2-Jan-2023
  - Added debug x/y mouse position
  - Ported custom font functions and 5x6/7x8 fonts
+
+3-Jan-2023
+ - Added larger font for testing
+ - Played around with creating a virtual keyboard
+
+29-Jan-2023
+ - Cached font and texture data
+ - Load font and texture data from files
+ 

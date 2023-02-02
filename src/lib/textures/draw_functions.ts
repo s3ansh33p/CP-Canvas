@@ -32,7 +32,6 @@ function draw_texture_shader(texturepointer: Uint16Array, x: number, y: number, 
     let w = texturepointer[0];
     let h = texturepointer[1];
     let k = 2;
-    console.log(texturepointer[2], INT_RGB565TO888(texturepointer[2]));
     for (let j = 0; j < h; j++) {
         for (let i = 0; i < w; i++) {
             shader(x, y, w, h, i, j, INT_RGB565TO888(texturepointer[k]), shaderID, shaderArg);
