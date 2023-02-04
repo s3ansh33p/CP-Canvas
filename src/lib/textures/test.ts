@@ -53,9 +53,10 @@ export async function test_sandbox() {
         //     line(WIDTH/8 * i, 0, WIDTH/8 * i, HEIGHT, color);
         // }    
         // color = [150, 150, 150];
-        // for (let i = 1; i < 8; i += 2) {
-        //     line(0, HEIGHT/8 * i, WIDTH, HEIGHT/8 * i, color);
-        // }
+        color = [0,0, 150];
+        for (let i = 1; i < 8; i += 2) {
+            line(0, HEIGHT/8 * i, WIDTH, HEIGHT/8 * i, color);
+        }
         color = [180, 180, 180];
         line(WIDTH/4, 0, WIDTH/4, HEIGHT, color);
         line(WIDTH/4 * 3, 0, WIDTH/4 * 3, HEIGHT, color);
@@ -88,23 +89,35 @@ export async function test_sandbox() {
     // draw a pixel
     function drawPixel(x: number, y: number, color: RGBColor) {
         setPixel(x, y, color);
+        // pre calculations
+        let x2 = Math.floor(x / WIDTH * 2);
+        let x4 = Math.floor(x / WIDTH * 4);
+        
+        let y2 = Math.floor(y / HEIGHT * 2);
+        let y4 = Math.floor(y / HEIGHT * 4);
+        let y8 = Math.floor(y / HEIGHT * 8);
+
         // calc trees
-        tree1[Math.floor(y / HEIGHT * 2)] = 1;
-        tree2[Math.floor(y / HEIGHT * 2) + Math.floor(x / WIDTH * 2) * 2] = 1;
-        tree3[Math.floor(y / HEIGHT * 4) + Math.floor(x / WIDTH * 2) * 4] = 1;
-        // [(1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2),(1,3),(1,4),(2,3),(2,4),(3,3),(3,4),(4,3),(4,4)] tree4
-        if (x < WIDTH/2) {
-            // left side
-            tree4[Math.floor(x / WIDTH * 4) + Math.floor(y / HEIGHT * 4) * 2] = 1;
-        } else {
-            // right side
-            tree4[Math.floor(x / WIDTH * 4) - 2 + Math.floor(y / HEIGHT * 4) * 2 + 8] = 1;
-        }
+        tree1[y2] = 1;
+        tree2[y2 + x2 * 2] = 1;
+        tree3[y4 + x2 * 4] = 1;
+        
+        let ptr = 0;
+        if (x >= WIDTH/2) ptr += 6;
+        ptr += x4 + y4 * 2;
+        tree4[ptr] = 1;
+
+        ptr = 0;
+        if (x >= WIDTH/2) ptr += 16;
+        if (x4 % 2 == 1) ptr += 2;
+        ptr += y8 + y4 * 2;
+        tree5[ptr] = 1;
+       
     }
 
-    // drawPixel(9, 9, [255, 0, 0]);
-    // drawPixel(129, 11, [255, 0, 0]);
-    // drawPixel(129, 219, [255, 0, 0]);
+    drawPixel(9, 9, [255, 0, 0]);
+    drawPixel(129, 11, [255, 0, 0]);
+    drawPixel(129, 219, [255, 0, 0]);
     drawPixel(209, 309, [255, 0, 0]);
     // for (let i = 0; i < 256; i++) {
     //     drawPixel((i % 16) * WIDTH/16 + WIDTH/32, Math.floor(i / 16) * HEIGHT/16 + HEIGHT/32, [255, 0, 0]);
@@ -140,27 +153,38 @@ export async function test_sandbox() {
         for (let i = min; i <= min + 1; i++) {
             if (tree[i] == 1) {
                 // if we are at tree 1, we can refresh
-                if (level == 4) {
+                if (level == 5) {
                     // refresh and note x and y of the top left corner
                     let xm = 4;
-                    let ym = 4;
+                    let ym = 8;
                     // console.log("L3: Cell " + (i) + " (" + (Math.floor(i / ym)) + "," + ((i % ym)) + ")");
                     // let x = Math.floor(i / ym) * WIDTH / xm;
                     // let y = Math.floor(i % ym) * HEIGHT / ym;
                     // undo the math
-                    let x;
-                    let y;
-                    console.log("L4: Cell " + (i));
-                    if (i < 8) {
-                        // left side calc
-                        // x is 0 if i is odd
-                        x = (i % 2) * WIDTH / xm;
-                        y = Math.floor(i / 2) * HEIGHT / ym;
-                    } else {
-                        // right side calc
-                        x = (i % 2 + 2) * WIDTH / xm; // add x offset
-                        y = (Math.floor(i / 2) - 4) * HEIGHT / ym; // add y offset
-                    }
+                    // let x;
+                    // let y;
+                    // console.log("L4: Cell " + (i));
+                    // if (i < 8) {
+                    //     // left side calc
+                    //     // x is 0 if i is odd
+                    //     x = (i % 2) * WIDTH / xm;
+                    //     y = Math.floor(i / 2) * HEIGHT / ym;
+                    // } else {
+                    //     // right side calc
+                    //     x = (i % 2 + 2) * WIDTH / xm; // add x offset
+                    //     y = (Math.floor(i / 2) - 4) * HEIGHT / ym; // add y offset
+                    // }
+
+                    console.log("L5: Cell " + (i));
+                    let x = 0;
+                    let y = 0;
+                    if (i >= 16) x += WIDTH / 2;
+                    // 2,3,6,7,10,11,14,15
+                    if (Math.floor(i / 2) % 2 == 1) x += WIDTH / 4;
+                    // 0,2 | 4,6 | 8,10 | 12,14
+                    let iMod = i % 16;
+                    y += Math.floor(iMod / 4) * HEIGHT / 4;
+                    if (iMod % 2 == 1) y += HEIGHT / 8;
 
 
                     let xMax = x + WIDTH / xm;
